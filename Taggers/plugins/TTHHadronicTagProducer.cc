@@ -659,7 +659,6 @@ namespace flashgg {
             cout << endl;               
 
             if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
-            Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
 
             if(useTTHHadronicMVA_){
 

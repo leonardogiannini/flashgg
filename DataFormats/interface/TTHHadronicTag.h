@@ -129,7 +129,7 @@ namespace flashgg {
         double leadPhotonClosestPt_;
         double subleadPhotonClosestPt_;
 
-        floaFt topTagScore_;
+        float topTagScore_;
         float topTagTopMass_;
         float topTagWMass_;
 
