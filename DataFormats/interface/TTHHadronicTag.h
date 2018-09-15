@@ -52,6 +52,9 @@ namespace flashgg {
         double subleadPhotonClosestPt() const { return subleadPhotonClosestPt_; }
         double rand() const { return rand_; }
 
+        float topTagScore() const { return topTagScore_; }
+        float topTagTopMass() const { return topTagTopMass_; }
+        float topTagWMass() const { return topTagWMass_; }
 
         // Setters
         void setNjet( int nb ) { Njet_ = nb; }
@@ -84,6 +87,10 @@ namespace flashgg {
         void setLeadPhotonClosestPt(double leadPhotonClosestPt) { leadPhotonClosestPt_ = leadPhotonClosestPt;}
         void setSubleadPhotonClosestPt(double subleadPhotonClosestPt) { subleadPhotonClosestPt_ = subleadPhotonClosestPt;}
         void setRand(double rand) { rand_ = rand; }
+
+        void setTopTagScore(float toptagScore) { topTagScore_ = toptagScore; }
+        void setTopTagTopMass(float toptagTopMass) { topTagTopMass_ = toptagTopMass; }
+        void setTopTagWMass(float toptagWMass) { topTagWMass_ = toptagWMass; }
 
         DiPhotonTagBase::tag_t tagEnum() const override {return DiPhotonTagBase::kTTHHadronic; }
 
@@ -122,6 +129,10 @@ namespace flashgg {
         double subleadPhotonClosestDeltaR_;
         double leadPhotonClosestPt_;
         double subleadPhotonClosestPt_;
+
+        float topTagScore_;
+        float topTagTopMass_;
+        float topTagWMass_;
 
         double rand_;       
 
