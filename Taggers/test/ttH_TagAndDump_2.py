@@ -128,7 +128,7 @@ process.p = cms.Path(process.dataRequirements*
 		     process.flashggTagTester)
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("merged_ntuple.root"))
+                                   fileName = cms.string("merged_ntuple_2.root"))
 
 ## TAGS DUMPERS ##
 from flashgg.Taggers.tagsDumpers_cfi import *
@@ -401,9 +401,9 @@ cfgTools.addCategories(process.tthHadronicTagDumper,
                         "bjet2_pt := ?nBMedium>1? bJetVector.at(1).pt : -1",
                         "MetPt  := MetPt",
                         "MetPhi := MetPhi",
-                        "topTag_score := topTagScore",
-                        "topTag_topMass := topTagTopMass",
-                        "topTag_WMass := topTagWMass",
+                        "TopTagScore := TopTagScore",
+                        "TopTagTopMass := TopTagTopMass",
+                        "TopTagWMass := TopTagWMass",
                         "jet1_pt  := ?(jetVector.size>0)? jetVector.at(0).pt : -1",
                         "jet2_pt  := ?(jetVector.size>1)? jetVector.at(1).pt : -1",
                         "jet3_pt  := ?(jetVector.size>2)? jetVector.at(2).pt : -1",

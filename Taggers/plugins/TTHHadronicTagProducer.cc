@@ -863,7 +863,17 @@ namespace flashgg {
 		
                 tthhtags_obj.setMetPt((float)theMET->pt());
                 tthhtags_obj.setMetPhi((float)theMET->phi());
-			
+
+		if (mvaEval.size() > 0) {
+		  tthhtags_obj.setTopTagScore(mvaEval[0]);
+		  tthhtags_obj.setTopTagTopMass(mvaEval[4]);
+		  tthhtags_obj.setTopTagWMass(mvaEval[8]);
+		} else
+		  {
+		  tthhtags_obj.setTopTagScore(-999);
+		  tthhtags_obj.setTopTagTopMass(-999);
+		  tthhtags_obj.setTopTagWMass(-999);
+		  }
 		// Gen lepton info
                 if( ! evt.isRealData() ) {
                     evt.getByToken( genParticleToken_, genParticles );
