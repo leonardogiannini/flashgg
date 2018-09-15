@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
+#include "flashgg/Taggers/src/BDT_resolvedTopTagger.C"
 
 #include <vector>
 #include <algorithm>
@@ -563,6 +564,8 @@ namespace flashgg {
             if( dipho->leadingPhoton()->pt() < leadPhoPtCut || dipho->subLeadingPhoton()->pt() < subleadPhoPtCut ) { continue; }
             if( mvares->mvaValue() < diphoMVAcut ) { continue; }
 
+	    BDT_resolvedTopTagger topTagger("/home/users/hmei/ttH/BabyMaker/CMSSW_9_4_6/src/flashgg/Taggers/plugins/resTop_xgb_csv_order_deepCTag.xml");                                            
+
             for( unsigned int jetIndex = 0; jetIndex < Jets[jetCollectionIndex]->size() ; jetIndex++ ) {
                 edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( jetIndex );
                 if( fabs( thejet->eta() ) > jetEtaThreshold_ ) { continue; }
@@ -585,7 +588,14 @@ namespace flashgg {
                 if(bTag_ == "pfDeepCSV") bDiscriminatorValue = thejet->bDiscriminator("pfDeepCSVJetTags:probb")+thejet->bDiscriminator("pfDeepCSVJetTags:probbb") ;
                 else  bDiscriminatorValue = thejet->bDiscriminator( bTag_ );
 
-                
+                float cvsl = thejet->bDiscriminator("pfDeepCSVJetTags:probc") + thejet->bDiscriminator("pfDeepCSVJetTags:probudsg") ;
+                float cvsb = thejet->bDiscriminator("pfDeepCSVJetTags:probc") + thejet->bDiscriminator("pfDeepCSVJetTags:probb")+thejet->bDiscriminator("pfDeepCSVJetTags:probbb") ;
+                float ptD = thejet->userFloat("ptD") ;
+                float axis1 = thejet->userFloat("axis1") ;
+                int mult = thejet->userFloat("totalMult") ;
+
+                topTagger.addJet(thejet->pt(), thejet->eta(), thejet->phi(), thejet->mass(), bDiscriminatorValue, cvsl, cvsb, ptD, axis1, mult);            
+               
 
                 float jetPt = thejet->pt();
                 if(jetPt > leadJetPt_){
@@ -637,7 +647,14 @@ namespace flashgg {
                 }
                 if( bDiscriminatorValue > bDiscriminator_[2] ) njets_btagtight_++;
             }
-        
+
+            vector<float> mvaEval = topTagger.EvalMVA();                                                                                        
+	    cout << "eval top tagger: " << mvaEval.size() << endl;                                                                                                                   
+            for (unsigned topt = 0; topt < mvaEval.size(); topt++)                                                                                                                                         
+              if (topt < mvaEval.size() - 1) cout << mvaEval[topt] << ", ";                                                                                                                               
+              else cout << mvaEval[topt];                                                                                                                                                                  
+            cout << endl;               
+
             if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
             Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
 
@@ -851,7 +868,7 @@ namespace flashgg {
                 if( ! evt.isRealData() ) {
                     evt.getByToken( genParticleToken_, genParticles );
                     int nGoodEls(0), nGoodMus(0), nGoodElsFromTau(0), nGoodMusFromTau(0), nGoodTaus(0);
-                    cout << "Number of gen particles: " << genParticles->size() << endl;
+                    //cout << "Number of gen particles: " << genParticles->size() << endl;
                     for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
                         int pdgid = genParticles->ptrAt( genLoop )->pdgId();
                         double pt = genParticles->ptrAt( genLoop )->p4().pt();
@@ -860,6 +877,7 @@ namespace flashgg {
                         bool isPromptDecayed = genParticles->ptrAt( genLoop )->isPromptDecayed();
                         bool isDirectPromptTauDecayProductFinalState = genParticles->ptrAt( genLoop )->isDirectPromptTauDecayProductFinalState();
                         if (pt < 20) continue;
+			/*
                         if (abs(pdgid) == 11 || abs(pdgid) == 13 || abs(pdgid) == 15) {
                             cout << "Found a gen lepton/tau with pT > 20" << endl;
                             cout << "pdgid: " << pdgid << endl;
@@ -869,6 +887,7 @@ namespace flashgg {
                             cout << "isPromptDecayed: " << isPromptDecayed << endl;
                             cout << "isDirectPromptTauDecayProductFinalState: " << isDirectPromptTauDecayProductFinalState << endl;
                         }
+			*/
                         if (abs(pdgid) == 11 && status == 1 && (isPromptFinalState || isDirectPromptTauDecayProductFinalState)) {
                             nGoodEls++;
                             if (isDirectPromptTauDecayProductFinalState)
