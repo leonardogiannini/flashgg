@@ -87,7 +87,6 @@ namespace flashgg {
         void setLeadPhotonClosestPt(double leadPhotonClosestPt) { leadPhotonClosestPt_ = leadPhotonClosestPt;}
         void setSubleadPhotonClosestPt(double subleadPhotonClosestPt) { subleadPhotonClosestPt_ = subleadPhotonClosestPt;}
         void setRand(double rand) { rand_ = rand; }
-
         void setTopTagScore(float toptagScore) { topTagScore_ = toptagScore; }
         void setTopTagTopMass(float toptagTopMass) { topTagTopMass_ = toptagTopMass; }
         void setTopTagWMass(float toptagWMass) { topTagWMass_ = toptagWMass; }
@@ -130,7 +129,7 @@ namespace flashgg {
         double leadPhotonClosestPt_;
         double subleadPhotonClosestPt_;
 
-        float topTagScore_;
+        floaFt topTagScore_;
         float topTagTopMass_;
         float topTagWMass_;
 

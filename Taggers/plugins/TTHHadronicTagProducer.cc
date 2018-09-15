@@ -724,7 +724,6 @@ namespace flashgg {
                 }
 
 
-
                 if(JetVect.size()>0){
                     if(bTag_ == "pfDeepCSV") { btag_1_=JetVect[0]->bDiscriminator("pfDeepCSVJetTags:probb")+JetVect[0]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
 			//cout << "using addition of prob b and bb" << endl;
@@ -764,7 +763,6 @@ namespace flashgg {
 
 
 
-
                 if(JetVect.size()>0){
                     if(bTag_ == "pfDeepCSV") { btag_1_=JetVect[0]->bDiscriminator("pfDeepCSVJetTags:probb")+JetVect[0]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
 			//cout << "using addition of prob b and bb" << endl;
@@ -799,7 +797,6 @@ namespace flashgg {
                     jetEta_4_=JetVect[3]->eta();
                     jetPhi_4_=JetVect[3]->phi();
                 }
-
 
                 if(secondMaxBTagVal_ >= secondMaxBTagTTHHMVAThreshold_ && njets_btagloose_ >= bjetsLooseNumberTTHHMVAThreshold_ && njets_btagmedium_ >= bjetsNumberTTHHMVAThreshold_ && jetcount_ >= jetsNumberTTHHMVAThreshold_ && _MVAMethod != ""){
                     
@@ -920,7 +917,6 @@ namespace flashgg {
                 if( ! evt.isRealData() ) {
                     evt.getByToken( genParticleToken_, genParticles );
                     int nGoodEls(0), nGoodMus(0), nGoodElsFromTau(0), nGoodMusFromTau(0), nGoodTaus(0);
-                    //cout << "Number of gen particles: " << genParticles->size() << endl;
                     cout << "Number of gen particles: " << genParticles->size() << endl;
                     for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
                         int pdgid = genParticles->ptrAt( genLoop )->pdgId();
