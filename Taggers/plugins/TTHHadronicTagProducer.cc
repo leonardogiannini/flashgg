@@ -647,6 +647,9 @@ namespace flashgg {
                 }
                 if( bDiscriminatorValue > bDiscriminator_[2] ) njets_btagtight_++;
             }
+        
+            if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
+            Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
 
             vector<float> mvaEval = topTagger.EvalMVA();                                                                                        
 	    cout << "eval top tagger: " << mvaEval.size() << endl;                                                                                                                   
@@ -757,6 +760,45 @@ namespace flashgg {
                     jetPhi_4_=JetVect[3]->phi();
                 }
 
+
+
+
+
+
+                if(JetVect.size()>0){
+                    if(bTag_ == "pfDeepCSV") { btag_1_=JetVect[0]->bDiscriminator("pfDeepCSVJetTags:probb")+JetVect[0]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
+			//cout << "using addition of prob b and bb" << endl;
+		    }
+                    else  { btag_1_ = JetVect[0]->bDiscriminator( bTag_ );
+			//cout << "using bTag_" << endl; 
+		    }
+                    jetPt_1_=JetVect[0]->pt();
+                    jetEta_1_=JetVect[0]->eta();
+                    jetPhi_1_=JetVect[0]->phi();
+                }
+
+                if(JetVect.size()>1){
+                    if(bTag_ == "pfDeepCSV") btag_2_=JetVect[1]->bDiscriminator("pfDeepCSVJetTags:probb")+JetVect[1]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
+                    else  btag_2_ = JetVect[1]->bDiscriminator( bTag_ );
+                    jetPt_2_=JetVect[1]->pt();
+                    jetEta_2_=JetVect[1]->eta();
+                    jetPhi_2_=JetVect[1]->phi();
+                }
+
+                if(JetVect.size()>2){
+                    if(bTag_ == "pfDeepCSV") btag_3_=JetVect[2]->bDiscriminator("pfDeepCSVJetTags:probb")+JetVect[2]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
+                    else  btag_3_ = JetVect[2]->bDiscriminator( bTag_ );
+                    jetPt_3_=JetVect[2]->pt();
+                    jetEta_3_=JetVect[2]->eta();
+                    jetPhi_3_=JetVect[2]->phi();
+                }
+                if(JetVect.size()>3){
+                    if(bTag_ == "pfDeepCSV") btag_4_=JetVect[3]->bDiscriminator("pfDeepCSVJetTags:probb")+JetVect[3]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
+                    else  btag_4_ = JetVect[3]->bDiscriminator( bTag_ );
+                    jetPt_4_=JetVect[3]->pt();
+                    jetEta_4_=JetVect[3]->eta();
+                    jetPhi_4_=JetVect[3]->phi();
+                }
 
 
                 if(secondMaxBTagVal_ >= secondMaxBTagTTHHMVAThreshold_ && njets_btagloose_ >= bjetsLooseNumberTTHHMVAThreshold_ && njets_btagmedium_ >= bjetsNumberTTHHMVAThreshold_ && jetcount_ >= jetsNumberTTHHMVAThreshold_ && _MVAMethod != ""){
@@ -879,6 +921,7 @@ namespace flashgg {
                     evt.getByToken( genParticleToken_, genParticles );
                     int nGoodEls(0), nGoodMus(0), nGoodElsFromTau(0), nGoodMusFromTau(0), nGoodTaus(0);
                     //cout << "Number of gen particles: " << genParticles->size() << endl;
+                    cout << "Number of gen particles: " << genParticles->size() << endl;
                     for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
                         int pdgid = genParticles->ptrAt( genLoop )->pdgId();
                         double pt = genParticles->ptrAt( genLoop )->p4().pt();
