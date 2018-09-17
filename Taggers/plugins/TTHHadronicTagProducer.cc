@@ -177,6 +177,7 @@ namespace flashgg {
 
         vector<double> boundaries;
 
+      BDT_resolvedTopTagger *topTagger;
     };
 
     TTHHadronicTagProducer::TTHHadronicTagProducer( const ParameterSet &iConfig ) :
@@ -348,6 +349,8 @@ namespace flashgg {
 
         produces<vector<TTHHadronicTag> >();
         produces<vector<TagTruthBase> >();
+
+	topTagger = new BDT_resolvedTopTagger("/home/users/hmei/ttH/BabyMaker/CMSSW_9_4_6/src/flashgg/Taggers/plugins/resTop_xgb_csv_order_deepCTag.xml");
     }
 
     int TTHHadronicTagProducer::chooseCategory( float tthmvavalue )
@@ -564,8 +567,8 @@ namespace flashgg {
             if( dipho->leadingPhoton()->pt() < leadPhoPtCut || dipho->subLeadingPhoton()->pt() < subleadPhoPtCut ) { continue; }
             if( mvares->mvaValue() < diphoMVAcut ) { continue; }
 
-	    BDT_resolvedTopTagger topTagger("/home/users/hmei/ttH/BabyMaker/CMSSW_9_4_6/src/flashgg/Taggers/plugins/resTop_xgb_csv_order_deepCTag.xml");                                            
-
+	    //BDT_resolvedTopTagger topTagger("/home/users/hmei/ttH/BabyMaker/CMSSW_9_4_6/src/flashgg/Taggers/plugins/resTop_xgb_csv_order_deepCTag.xml");                                            
+	    cout << "njets: " << Jets[jetCollectionIndex]->size() << endl;
             for( unsigned int jetIndex = 0; jetIndex < Jets[jetCollectionIndex]->size() ; jetIndex++ ) {
                 edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( jetIndex );
                 if( fabs( thejet->eta() ) > jetEtaThreshold_ ) { continue; }
@@ -594,7 +597,7 @@ namespace flashgg {
                 float axis1 = thejet->userFloat("axis1") ;
                 int mult = thejet->userFloat("totalMult") ;
 
-                topTagger.addJet(thejet->pt(), thejet->eta(), thejet->phi(), thejet->mass(), bDiscriminatorValue, cvsl, cvsb, ptD, axis1, mult);            
+                topTagger->addJet(thejet->pt(), thejet->eta(), thejet->phi(), thejet->mass(), bDiscriminatorValue, cvsl, cvsb, ptD, axis1, mult);            
                
 
                 float jetPt = thejet->pt();
@@ -651,13 +654,13 @@ namespace flashgg {
             if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
             Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
 
-            vector<float> mvaEval = topTagger.EvalMVA();                                                                                        
+            vector<float> mvaEval = topTagger->EvalMVA();                                                                                        
 	    cout << "eval top tagger: " << mvaEval.size() << endl;                                                                                                                   
             for (unsigned topt = 0; topt < mvaEval.size(); topt++)                                                                                                                                         
               if (topt < mvaEval.size() - 1) cout << mvaEval[topt] << ", ";                                                                                                                               
               else cout << mvaEval[topt];                                                                                                                                                                  
             cout << endl;               
-
+	    topTagger->clear();
             if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
 
             if(useTTHHadronicMVA_){
