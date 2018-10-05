@@ -25,7 +25,7 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
-#include "flashgg/Taggers/src/BDT_resolvedTopTagger.C"
+#include "BDT_resolvedTopTagger.C"
 
 #include <vector>
 #include <algorithm>
@@ -69,6 +69,7 @@ namespace flashgg {
         EDGetTokenT<float> pTHToken_,pTVToken_;
         EDGetTokenT<double> rhoTag_;
         string systLabel_;
+        FileInPath topTaggerXMLfile_;
 
 
         typedef std::vector<edm::Handle<edm::View<flashgg::Jet> > > JetCollectionVector;
@@ -248,7 +249,7 @@ namespace flashgg {
 
   
         tthMVAweightfile_ = iConfig.getParameter<edm::FileInPath>( "tthMVAweightfile" ); 
-
+        topTaggerXMLfile_ = iConfig.getParameter<edm::FileInPath>( "topTaggerXMLfile" );
         nJets_ = 0;
         leadJetPt_ = 0.;
         leadJetBTag_ = -1.;
@@ -350,7 +351,8 @@ namespace flashgg {
         produces<vector<TTHHadronicTag> >();
         produces<vector<TagTruthBase> >();
 
-	topTagger = new BDT_resolvedTopTagger("/home/users/hmei/ttH/BabyMaker/CMSSW_9_4_6/src/flashgg/Taggers/plugins/resTop_xgb_csv_order_deepCTag.xml");
+	//	topTagger = new BDT_resolvedTopTagger("/home/users/hmei/ttH/BabyMaker/CMSSW_9_4_6/src/flashgg/Taggers/plugins/resTop_xgb_csv_order_deepCTag.xml");
+	topTagger = new BDT_resolvedTopTagger(topTaggerXMLfile_.fullPath());
     }
 
     int TTHHadronicTagProducer::chooseCategory( float tthmvavalue )
@@ -906,7 +908,7 @@ namespace flashgg {
                 tthhtags_obj.setMetPhi((float)theMET->phi());
 
 		if (mvaEval.size() > 0) {
-		  tthhtags_obj.setTopTagScore(mvaEval[0]);
+		  tthhtags_obj.setTopTagScore(mvaEval[0] != -99 ? mvaEval[0] : -1);
 		  tthhtags_obj.setTopTagTopMass(mvaEval[4]);
 		  tthhtags_obj.setTopTagWMass(mvaEval[8]);
 		} else

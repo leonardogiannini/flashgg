@@ -41,6 +41,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(nEvents) )
 
 fileNames = sys.argv[2]
 fileNames = fileNames.replace('/hadoop','file:/hadoop')
+fileNames = fileNames.replace('/home','file:/home')
 fileNames = fileNames.split(",")
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(fileNames))
 #process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIIFall17-3_2_0/3_2_0/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8/RunIIFall17-3_2_0-3_2_0-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/180817_102411/0000/myMicroAODOutputFile_7.root"))
