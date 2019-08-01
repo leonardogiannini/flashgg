@@ -143,7 +143,7 @@ class WorkNodeJob(object):
         # get specific preamble needed by the runner
         #     this commands are expected to bring the process to the job working directory in the worker node
 
-        #script += self.runner.preamble()+"\n" #NOT NEEDED ON UAF
+        #script += self.runner.preamble()+"\n" #NOT NEEDED ON uaf
 
         # copy grid proxy over
         if self.copy_proxy and self.runner.copyProxy():
