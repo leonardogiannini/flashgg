@@ -206,9 +206,10 @@ class WorkNodeJob(object):
             # rewrote this block for running on uaf
             script += "export SCRAM_ARCH=%s\n" % os.environ['SCRAM_ARCH']
             script += "source /cvmfs/cms.cern.ch/cmsset_default.sh\n"
-            script += "tar zxf %s\n" % self.tarball
+            script += "tar zxf sandbox.tgz\n"
+            #script += "tar zxf %s\n" % self.tarball
             script += "cd %s/src/flashgg\n" % os.environ['CMSSW_VERSION']
-            script += "cp src/XGBoostCMSSW/XGBoostInterface/toolbox/*xml config/toolbox/$SCRAM_ARCH/tools/selected/\n"
+            #script += "cp src/XGBoostCMSSW/XGBoostInterface/toolbox/*xml config/toolbox/$SCRAM_ARCH/tools/selected/\n"
             script += "scramv1 b ProjectRename\n"
             script += "scram b\n"
             script += "eval `scramv1 runtime -sh`\n"
@@ -257,7 +258,7 @@ class WorkNodeJob(object):
         script += 'if [[ $retval == 0 ]]; then\n'
         script += '    errors=""\n'
         script += '    for file in $(find -name %s); do\n' % " -or -name ".join(self.stage_patterns)
-        script += '        %s $file %s\n' % ( self.stage_cmd, self.stage_dest )
+        script += '        %s $file %s/$file\n' % ( self.stage_cmd, self.stage_dest )
         script += '        if [[ $? != 0 ]]; then\n'
         script += '            errors="$errors $file($?)"\n'
         script += '        fi\n'
@@ -394,6 +395,7 @@ class HTCondorJob(object):
         self.jobName = jobName
         self.cfgName = jobName+".sub"
         self.execName = jobName+".sh"
+        self.tarball = ""
         self.jobid = None
         self.cmd = None
         self.replacesJob = replacesJob
@@ -406,6 +408,9 @@ class HTCondorJob(object):
 
     def __str__(self):
         return "HTCondorJob: [%s] [%s]" % ( self.htcondorQueue, self.cfgName)
+
+    def setTarball(self,tarball):
+        self.tarball = tarball
 
     def setJobId(self,jobid):
         self.jobid = jobid
@@ -440,8 +445,7 @@ class HTCondorJob(object):
             fout.write('periodic_release =  (NumJobStarts < 4) && ((CurrentTime - EnteredCurrentStatus) > 60) \n\n')
             fout.write('executable  = '+self.execName+'\n')
             fout.write('x509userproxy=/tmp/x509up_u31693\n')
-            fout.write('transfer_input_files = '+self.tarball+'\n')
-            #fout.write('transfer_input_files = ./sandbox.tgz\n')
+            fout.write('transfer_input_files = ./sandbox.tgz\n')
             fout.write('arguments   = $(ProcId)\n')
             #fout.write('arguments   = $(ProcId)\n')
             if self.copy_proxy:

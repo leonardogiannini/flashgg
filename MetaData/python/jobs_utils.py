@@ -261,9 +261,14 @@ class JobsManager(object):
         pset = "$CMSSW_BASE/src/flashgg/Systematics/test/" + pset
         #pset = os.path.abspath(pset)
 
+        # need to put config.json in outdir before make tarball
+        with open("%s/config.json" % (options.outputDir), "w+" ) as fout:
+            fout.write( dumpCfg(options,skip=["dry_run","summary"]) )
+
         if options.useTarball:
             apset = os.path.abspath(pset)
-            self.jobFactory.mkTarball("%s/sandbox.tgz" % os.path.abspath(options.outputDir),
+            #self.jobFactory.mkTarball("%s/sandbox.tgz" % os.path.abspath(options.outputDir),
+            self.jobFactory.mkTarball("$CMSSW_BASE/src/flashgg/Systematics/test/sandbox.tgz",
                                       tarball_entries=[apset,"python","lib","bin","src/flashgg/MetaData/python"],tarball_patterns=[("src/*","data"), ("external/*","data"), ("src/*","toolbox")],
                                       tarball_transform="'s,%s,pset.py,'" % (apset.lstrip("/"))
                                       )
@@ -286,8 +291,8 @@ class JobsManager(object):
         else:
             args[0] = pset
 
-        with open("%s/config.json" % (options.outputDir), "w+" ) as fout:
-            fout.write( dumpCfg(options,skip=["dry_run","summary"]) )
+        #with open("%s/config.json" % (options.outputDir), "w+" ) as fout:
+        #    fout.write( dumpCfg(options,skip=["dry_run","summary"]) )
 
         # store cmdLine
         options.cmdLine = str(" ".join(args))
