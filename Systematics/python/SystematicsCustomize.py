@@ -136,6 +136,10 @@ def cloneTagSequenceForEachSystematic(process,systlabels=[],phosystlabels=[],met
             process.flashggSystTagMerger.src.append(cms.InputTag("flashggTagSorter" + systlabel))
 
 
+def allowLargettHMVAs(process):
+    for tag in ["flashggTTHLeptonicTag", "flashggTTHHadronicTag"]:
+        getattr(process, tag).UseLargeMVAs = cms.bool(True) # enable memory-intensive MVAs
+
 def customizeSystematicsForMC(process):
     customizePhotonSystematicsForMC(process)
 
