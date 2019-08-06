@@ -204,6 +204,7 @@ class WorkNodeJob(object):
             #script += "scram b\n"
 
             # rewrote this block for running on uaf
+            script += "xrdcp root://redirector.t2.ucsd.edu//" + (self.stage_dest.split("hadoop/cms"))[1] + "sandbox.tgz .\n"
             script += "export SCRAM_ARCH=%s\n" % os.environ['SCRAM_ARCH']
             script += "source /cvmfs/cms.cern.ch/cmsset_default.sh\n"
             script += "tar zxf sandbox.tgz\n"
@@ -329,20 +330,22 @@ class WorkNodeJobFactory(object):
         args.extend(["-h","--show-transformed","-zvcf",tarball])
         args.extend(content)
         print
-        print "Preparing tarball with the following content:"
-        print "\n".join(content)
+        print "Preparing tarball..." # with the following content:"
+        #print "\n".join(content)
         print
         #stat,out =  commands.getstatusoutput("cd $CMSSW_BASE; tar %s" % " ".join(args) )
 
-        myArgs = ["-cvzf", tarball, "--exclude='.git' --exclude='my*.root' --exclude='*.tar'   $CMSSW_VERSION"]
+        myArgs = ["-cvzf", tarball, "--exclude='.git' --exclude='*.tgz' --exclude='.nfs*'  --exclude='my*.root' --exclude='*.tar'   $CMSSW_VERSION"]
         stat,out =  commands.getstatusoutput("cd $CMSSW_BASE/..; tar %s" % " ".join(myArgs) )
+        stat,out =  commands.getstatusoutput("cd $CMSSW_BASE/..; tar %s; cp %s %s " %( " ".join(myArgs), tarball, (self.stage_dest.split("ucsd.edu"))[1] ) )
 
         if stat != 0:
             print "error (%d) creating job tarball"
             print "CMSSW_BASE: %s" % os.environ["CMSSW_BASE"]
             print "args: %s" % " ".join(args)
             print out
-
+        else:
+            print "tarball made and copied to hadoop"
 
     #----------------------------------------
     def getStageCmd(self):
@@ -445,7 +448,7 @@ class HTCondorJob(object):
             fout.write('periodic_release =  (NumJobStarts < 4) && ((CurrentTime - EnteredCurrentStatus) > 60) \n\n')
             fout.write('executable  = '+self.execName+'\n')
             fout.write('x509userproxy=/tmp/x509up_u31693\n')
-            fout.write('transfer_input_files = ./sandbox.tgz\n')
+            #fout.write('transfer_input_files = ./sandbox.tgz\n')
             fout.write('arguments   = $(ProcId)\n')
             #fout.write('arguments   = $(ProcId)\n')
             if self.copy_proxy:
