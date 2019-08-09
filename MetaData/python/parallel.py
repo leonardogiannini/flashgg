@@ -336,16 +336,16 @@ class WorkNodeJobFactory(object):
         #stat,out =  commands.getstatusoutput("cd $CMSSW_BASE; tar %s" % " ".join(args) )
 
         myArgs = ["-cvzf", tarball, "--exclude='.git' --exclude='*.tgz' --exclude='.nfs*'  --exclude='my*.root' --exclude='*.tar'   $CMSSW_VERSION"]
-        stat,out =  commands.getstatusoutput("cd $CMSSW_BASE/..; tar %s" % " ".join(myArgs) )
-        stat,out =  commands.getstatusoutput("cd $CMSSW_BASE/..; tar %s; cp %s %s " %( " ".join(myArgs), tarball, (self.stage_dest.split("ucsd.edu"))[1] ) )
+        #stat,out =  commands.getstatusoutput("cd $CMSSW_BASE/..; tar %s" % " ".join(myArgs) )
+        #stat,out =  commands.getstatusoutput("cd $CMSSW_BASE/..; tar %s; cp %s %s " %( " ".join(myArgs), tarball, (self.stage_dest.split("ucsd.edu"))[1] ) )
 
-        if stat != 0:
-            print "error (%d) creating job tarball"
-            print "CMSSW_BASE: %s" % os.environ["CMSSW_BASE"]
-            print "args: %s" % " ".join(args)
-            print out
-        else:
-            print "tarball made and copied to hadoop"
+        #if stat != 0:
+        #    print "error (%d) creating job tarball"
+        #    print "CMSSW_BASE: %s" % os.environ["CMSSW_BASE"]
+        #    print "args: %s" % " ".join(args)
+        #    print out
+        #else:
+        #    print "tarball made and copied to hadoop"
 
     #----------------------------------------
     def getStageCmd(self):
