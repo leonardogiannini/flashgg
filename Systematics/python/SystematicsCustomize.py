@@ -34,14 +34,14 @@ def printSystematicVPSet(vpsetlist):
 #            if detailed:
 #               if hasattr(pset,"PhotonMethodName"):
 #                    print pset.PhotonMethodName.value(),pset.Label.value(),pset.OverallRange.value(),
-#                else:    
+#                else:
 #                    print pset.MethodName.value(),pset.Label.value(),pset.OverallRange.value(),
             syst = pset.Label.value()
             if pset.ApplyCentralValue.value():
                 cv = "YES"
             else:
                 cv = "NO"
-            sigmalist = pset.NSigmas.value()    
+            sigmalist = pset.NSigmas.value()
             sig = ""
             sig2 = ""
             if type(sigmalist) == type([]) and len(sigmalist) > 0:
@@ -54,7 +54,7 @@ def printSystematicVPSet(vpsetlist):
                 sig2 += "2nd: "
                 for val in sigmalist.secondVar:
                         sig2 += "%i " % val
-            else:    
+            else:
                 sig += "NO"
             print "%20s %15s %20s" % (syst,cv,sig)
             if (sig2 != ""):
@@ -72,13 +72,13 @@ def createStandardSystematicsProducers(process, options):
 
     from flashgg.Taggers.flashggTagSequence_cfi import *
     process.flashggTagSequence = flashggPrepareTagSequence(options.metaConditions)
-    
+
     import flashgg.Systematics.flashggDiPhotonSystematics_cfi as diPhotons_syst
     diPhotons_syst.setupDiPhotonSystematics( process, options )
 
     import flashgg.Systematics.flashggMuonSystematics_cfi as muon_sf
     muon_sf.SetupMuonScaleFactors( process , options.metaConditions["MUON_ID"], options.metaConditions["MUON_ISO"] )
-    
+
     setattr( process.flashggElectronSystematics.SystMethods,"BinList",str("process.flashggElectronSystematics."+options.metaConditions["Ele_ID_eff_bin"]))
 
     from flashgg.Taggers.flashggTags_cff import UnpackedJetCollectionVInputTag
@@ -99,9 +99,9 @@ def modifyTagSequenceForSystematics(process,jetSystematicsInputTags,ZPlusJetMode
     for i in range(len(jetSystematicsInputTags)):
         massSearchReplaceAnyInputTag(process.flashggTagSequence,UnpackedJetCollectionVInputTag[i],jetSystematicsInputTags[i])
 
-    if ZPlusJetMode == 2:  # VBF    
+    if ZPlusJetMode == 2:  # VBF
         process.flashggSystTagMerger = cms.EDProducer("VBFTagMerger",src=cms.VInputTag("flashggVBFTag"))
-    elif ZPlusJetMode:    
+    elif ZPlusJetMode:
         process.flashggSystTagMerger = cms.EDProducer("ZPlusJetTagMerger",src=cms.VInputTag("flashggZPlusJetTag"))
     else:
         process.flashggSystTagMerger = cms.EDProducer("TagMerger",src=cms.VInputTag("flashggTagSorter"))
@@ -155,8 +155,8 @@ def modifySystematicsWorkflowForttH(process, systlabels, phosystlabels, metsystl
         if systlabel == "":
             continue
         process.p.remove(getattr(process, 'flashggTagSorter' + systlabel))
-        process.p.replace(process.flashggSystTagMerger, getattr(process, 'flashggTagSorter' + systlabel) * process.flashggSystTagMerger) 
-    setattr(getattr(process, 'flashggTagSorter'+systlabel), 'TagPriorityRanges', cms.VPSet( cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag', systlabel)), cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag', systlabel)) ))
+        process.p.replace(process.flashggSystTagMerger, getattr(process, 'flashggTagSorter' + systlabel) * process.flashggSystTagMerger)
+        setattr(getattr(process, 'flashggTagSorter'+systlabel), 'TagPriorityRanges', cms.VPSet( cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag', systlabel)), cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag', systlabel)) ))
 
 def allowLargettHMVAs(process):
     for tag in ["flashggTTHLeptonicTag", "flashggTTHHadronicTag"]:
@@ -173,7 +173,7 @@ def customizePhotonSystematicsForMC(process):
             pset.BinList = photonSmearBins
         elif photonScaleUncertBins and pset.Label.value().count("Scale"):
             pset.BinList = photonScaleUncertBins
-    
+
 def customizeSystematicsForSignal(process):
     customizeSystematicsForMC(process)
 
@@ -208,7 +208,7 @@ def customizeVPSetForData(systs, phScaleBins):
                 pset.NSigmas = cms.vint32() # Do not perform shift
             else:
                 pset.NSigmas = cms.PSet( firstVar = cms.vint32(), secondVar = cms.vint32() ) # Do not perform shift - 2D case
-            if pset.Label.value().count("Scale") and phScaleBins != None: 
+            if pset.Label.value().count("Scale") and phScaleBins != None:
                 pset.BinList = phScaleBins
             newvpset += [pset]
     return newvpset
@@ -272,7 +272,7 @@ def useEGMTools(process):
             process.MCSmearHighR9EB_EGM,
             process.MCSmearLowR9EB_EGM,
             ])
-    
+
     # add sigmaE/E correction and systematics
     process.flashggDiPhotonSystematics.SystMethods.extend( [process.SigmaEOverESmearing_EGM, process.SigmaEOverEShift] )
 

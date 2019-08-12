@@ -398,7 +398,7 @@ namespace flashgg {
         systematicsLabels.push_back("");
         modifySystematicsWorkflow = iConfig.getParameter<bool> ( "ModifySystematicsWorkflow" );
 
-        useLargeMVAs = iConfig.getParameter<bool> ( "UseLargeMVAs" );
+        useLargeMVAs = false;//`iConfig.getParameter<bool> ( "UseLargeMVAs" );
 
         // Get diphoton candidates corresponding to each systematic
         inputDiPhotonName_= iConfig.getParameter<std::string>( "DiPhotonName" );
@@ -599,7 +599,7 @@ namespace flashgg {
          
         TThMva_RunII_->BookMVA( "BDT" , tthMVA_RunII_weightfile_.fullPath());     
 
-        if (useLargeMVAs) {
+        if ( useLargeMVAs) {
             topTagger = new BDT_resolvedTopTagger(topTaggerXMLfile_.fullPath());
             dnn = new DNN_Helper(tthVsttGGDNNfile_.fullPath());
             dnn->SetInputShapes(19, 9, 8);
@@ -720,6 +720,7 @@ namespace flashgg {
         if (!modifySystematicsWorkflow)
             systematicsLabels = {""};
 
+        //cout << "modifySystematicsWorkflow: " << modifySystematicsWorkflow << ", " << "systematicsLabels.size() " << systematicsLabels.size() << endl;
         //cout << "Looping over " << systematicsLabels.size() << "systematics variations" << endl;
         //cout << inputDiPhotonSuffixes_.size() << "for diphotons, " << inputJetsSuffixes_.size() << " for jets, and " << inputMetSuffixes_.size() << " for met" << endl;
 
@@ -998,7 +999,8 @@ namespace flashgg {
                         jet_syst_idx = syst_idx - (inputDiPhotonSuffixes_.size());
                     else
                         jet_syst_idx = 0;
-
+                    //cout << "test: " << jet_syst_idx << endl;
+                    //cout << "nJetCollSize: " << inputJetsCollSize_ << endl;
                     for (unsigned int i = 0; i < inputJetsCollSize_; i++)
                         evt.getByToken(jetTokens_[jet_syst_idx][i], Jets[i]);
                 }
@@ -1080,7 +1082,6 @@ namespace flashgg {
                 }
 
                 if(njet_ < jetsNumberThreshold_ || njets_btagmedium_ < bjetsNumberThreshold_) continue;
-     
                 if(debug_)
                     cout << "Jets after selections " << njet_ << ", bJets " << njets_btagmedium_ << endl;
 
@@ -1383,6 +1384,7 @@ namespace flashgg {
 
                 if(catNumber!=-1)
                 {
+                    cout << "catNumber: " << catNumber << ", dipho mass: " << dipho->mass() << ",  sysCat: " << syst_idx << endl;
                     TTHLeptonicTag tthltags_obj( dipho, mvares );
                     tthltags_obj.setCategoryNumber(catNumber);
 
@@ -1475,7 +1477,7 @@ namespace flashgg {
                            tthltags->back().setLeadMomMomID(leadFlags[7]);
                            tthltags->back().setLeadSmallestDr(NearestDr(genParticles, &(*gp_lead)));
 
-                           cout << "leadPrompt: " << leadFlags[0] << endl;
+                           //cout << "leadPrompt: " << leadFlags[0] << endl;
                            } 
 
                        if (gp_sublead_index != -1) {
