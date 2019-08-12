@@ -250,7 +250,7 @@ namespace flashgg {
         systematicsLabels.push_back("");
         modifySystematicsWorkflow = iConfig.getParameter<bool> ( "ModifySystematicsWorkflow" );
 
-        useLargeMVAs = false; //iConfig.getParameter<bool> ( "UseLargeMVAs" );
+        useLargeMVAs = iConfig.getParameter<bool> ( "UseLargeMVAs" );
 
         // Get diphoton candidates corresponding to each systematic
         inputDiPhotonName_= iConfig.getParameter<std::string>( "DiPhotonName" );
@@ -1245,10 +1245,10 @@ namespace flashgg {
                     }
                 }
                 
-                cout << "catNumber: " << catnum << ", dipho mass: " << dipho->mass() << ",  sysCat: " << syst_idx << ", systLabel: " << systLabel_ << endl;
+                //cout << "catNumber: " << catnum << ", dipho mass: " << dipho->mass() << ",  sysCat: " << syst_idx << ", systLabel: " << systLabel_ << endl;
                 if( isTTHHadronicTagged ) {
 
-                    cout << "catNumber: " << catnum << ", dipho mass: " << dipho->mass() << ",  sysCat: " << syst_idx << endl;
+                    //cout << "catNumber: " << catnum << ", dipho mass: " << dipho->mass() << ",  sysCat: " << syst_idx << endl;
                     TTHHadronicTag tthhtags_obj( dipho, mvares, JetVect, BJetVect );
                     tthhtags_obj.setCategoryNumber(catnum  );
                     tthhtags_obj.setNjet( jetcount_ );

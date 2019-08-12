@@ -12,7 +12,7 @@ def flashggPrepareTagSequence(options):
             setattr(flashggUpdatedIdMVADiPhotons, opt, str(value))
         else:
             setattr(flashggUpdatedIdMVADiPhotons, opt, value)
-    
+
     flashggTagSequence = cms.Sequence(flashggUpdatedIdMVADiPhotons
                                       * flashggPreselectedDiPhotons
                                       * flashggDiPhotonMVA
@@ -24,9 +24,9 @@ def flashggPrepareTagSequence(options):
                                           + flashggVBFTag
                                           + flashggTTHDiLeptonTag
                                           + flashggTTHLeptonicTag
-					  + flashggTHQLeptonicTag
-#                                     + flashggTTHHadronicTTag                                      
-#                                     + flashggTTHHadronicLTag                                      
+					  #+ flashggTHQLeptonicTag
+#                                     + flashggTTHHadronicTTag
+#                                     + flashggTTHHadronicLTag
                                           + flashggTTHHadronicTag
                                       #############old VH tags##############
                                       #                  + flashggVHEtTag

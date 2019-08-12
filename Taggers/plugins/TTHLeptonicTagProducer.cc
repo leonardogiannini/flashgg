@@ -398,7 +398,7 @@ namespace flashgg {
         systematicsLabels.push_back("");
         modifySystematicsWorkflow = iConfig.getParameter<bool> ( "ModifySystematicsWorkflow" );
 
-        useLargeMVAs = false;//`iConfig.getParameter<bool> ( "UseLargeMVAs" );
+        useLargeMVAs = iConfig.getParameter<bool> ( "UseLargeMVAs" );
 
         // Get diphoton candidates corresponding to each systematic
         inputDiPhotonName_= iConfig.getParameter<std::string>( "DiPhotonName" );
@@ -1384,7 +1384,7 @@ namespace flashgg {
 
                 if(catNumber!=-1)
                 {
-                    cout << "catNumber: " << catNumber << ", dipho mass: " << dipho->mass() << ",  sysCat: " << syst_idx << endl;
+                    //cout << "catNumber: " << catNumber << ", dipho mass: " << dipho->mass() << ",  sysCat: " << syst_idx << endl;
                     TTHLeptonicTag tthltags_obj( dipho, mvares );
                     tthltags_obj.setCategoryNumber(catNumber);
 
