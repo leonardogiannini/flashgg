@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 
 
 class JobConfig(object):
-    
+
     def __init__(self,*args,**kwargs):
-        
+
         super(JobConfig,self).__init__()
 
         self.crossSections=kwargs.get("crossSections",["$CMSSW_BASE/src/flashgg/MetaData/data/cross_sections.json"])
@@ -24,7 +24,7 @@ class JobConfig(object):
                                 "", # default value
                                VarParsing.VarParsing.multiplicity.list, # singleton or list
                                VarParsing.VarParsing.varType.string,          # string, int, or float
-                               "metaConditions")        
+                               "metaConditions")
         self.options.register ('dataset',
                                "", # default value
                                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -120,9 +120,9 @@ class JobConfig(object):
                                VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                                VarParsing.VarParsing.varType.string,          # string, int, or float
                                "WeightName")
-        
-        self.parsed = False        
-        
+
+        self.parsed = False
+
         from SimGeneral.MixingModule.mix_2015_25ns_Startup_PoissonOOTPU_cfi import mix as mix_2015_25ns
         from SimGeneral.MixingModule.mix_2015_50ns_Startup_PoissonOOTPU_cfi import mix as mix_2015_50ns
         self.pu_distribs = { "74X_mcRun2_asymptotic_v2" : mix_2015_25ns.input.nbPileupEvents }
@@ -131,7 +131,7 @@ class JobConfig(object):
             self.pu_distribs["PU25nsData2015v1"] = mix_2015_76_25ns.input.nbPileupEvents
         except Exception:
             print "Failed to load 76X mixing, this is expected in 74X!"
-            
+
         try:
             from SimGeneral.MixingModule.mix_2016_25ns_SpringMC_PUScenarioV1_PoissonOOTPU_cfi import mix as mix_2016_80_25ns
             self.pu_distribs["PUSpring16"] = mix_2016_80_25ns.input.nbPileupEvents
@@ -145,7 +145,7 @@ class JobConfig(object):
             self.pu_distribs["upgrade2017"] = mix_Moriond17.input.nbPileupEvents
         except Exception:
             print "Failed to load Moriond17 mixing, this is expected in earlier releases"
-            
+
         try:
             from flashgg.MetaData.mix_2017MCv2_DYJetsToLL import mix as mix_94X_mc2017
             #from flashgg.MetaData.mix_2017MCv2_GJet_Combined import mix as mix_94X_mc2017
@@ -157,7 +157,7 @@ class JobConfig(object):
             self.pu_distribs["Autumn18"] = mix_Autumn18.input.nbPileupEvents
         except Exception:
             print "Failed to load Autumn18 mixing"
-            
+
         #self.pu_distribs_hack_2017 = {  }
 
         # try:
@@ -177,18 +177,18 @@ class JobConfig(object):
         # except Exception,e:
         #     print "failed to load hacky 94X mixing by dataset"
         #     raise e
-            
+
     def __getattr__(self,name):
         ## did not manage to inherit from VarParsing, because of some issues in __init__
         ## this allows to use VarParsing methods on JobConfig
         if hasattr(self.options,name):
             return getattr(self.options,name)
-        
+
         raise AttributeError
-    
+
     def __call__(self,process):
         self.customize(process)
- 
+
     # process customization
     def customize(self,process):
         self.parse()
@@ -200,20 +200,20 @@ class JobConfig(object):
         if hasattr(process,"fwliteInput"):
             isFwlite = True
         if not isFwlite:
-            hasOutput = hasattr(process,"out")            
+            hasOutput = hasattr(process,"out")
             hasTFile = hasattr(process,"TFileService")
-        
+
         if hasOutput and hasTFile:
             tfile = self.outputFile.replace(".root","_histos.root")
         else:
             tfile = self.outputFile
-            
+
         if self.dryRun:
             import sys
             if self.dataset and self.dataset != "":
                 name,xsec,totEvents,files,maxEvents,sp_unused = self.dataset
                 if self.getMaxJobs:
-                    print "maxJobs:%d" % ( min(len(files),self.nJobs) )                    
+                    print "maxJobs:%d" % ( min(len(files),self.nJobs) )
                 if len(files) != 0:
                     if isFwlite:
                         print "hadd:%s" % self.outputFile
@@ -225,22 +225,22 @@ class JobConfig(object):
                     ## sys.exit(0)
             else:
                 sys.exit(1)
-        
-                
+
+
         files = self.inputFiles
         if self.dataset and self.dataset != "":
             dsetname,xsec,totEvents,files,maxEvents,sp_unused = self.dataset
             if type(xsec) == float or xsec == None:
-                print 
+                print
                 print "Error: cross section not found for dataset %s" % dsetname
                 print
-                
+
             self.options.maxEvents = int(maxEvents)
             putarget = None
             samplepu = None
             if self.puTarget != "":
                 putarget = map(float, self.puTarget.split(","))
-                
+
             processId = self.getProcessId(dsetname)
             self.processId = processId
 
@@ -249,7 +249,7 @@ class JobConfig(object):
             if self.options.processIndex != None:
                 self.processIndex = self.options.processIndex
             else:
-                # not specified on the command line, try to take it 
+                # not specified on the command line, try to take it
                 # from the cross section file, otherwise use smallest int32 as default value
                 # in order not to confuse it with data (index 0)
 
@@ -267,12 +267,12 @@ class JobConfig(object):
                     if hasattr(obj, "sampleIndex"):
                         obj.sampleIndex = xsec["itype"]
 
-            
+
             isdata = self.processType == "data"
             if isdata or self.targetLumi > 0. or putarget:
                 ## look for analyzers which have lumiWeight as attribute
                 for name,obj in process.__dict__.iteritems():
-                    
+
                     if hasattr(obj,"lumiWeight"):
                         if  isdata:
                             obj.lumiWeight = 1.
@@ -328,7 +328,7 @@ class JobConfig(object):
                                         print "Not all the same... so we return to the old behavior and take an exact match, otherwise leave empty..."
                                         matches = filter(lambda x: x == dsetname, matches)
                                 if len(matches) != 1:
-                                    raise Exception("Could not determine sample pu distribution for reweighting. Possible matches are [%s]. Selected [%s]\n dataset: %s" % 
+                                    raise Exception("Could not determine sample pu distribution for reweighting. Possible matches are [%s]. Selected [%s]\n dataset: %s" %
                                                         ( ",".join(self.pu_distribs.keys()), ",".join(matches), dsetname ) )
                                 # if self.options.PUyear=="2017": samplepu = self.pu_distribs_hack_2017[matches[0]]
                                 # else :
@@ -338,7 +338,7 @@ class JobConfig(object):
                             puObj.mcPu   = samplepu.probValue
                             puObj.dataPu = cms.vdouble(putarget)
                             puObj.useTruePu = cms.bool(True)
-                    
+
             for name,obj in process.__dict__.iteritems():
                 if hasattr(obj,"processId"):
                     obj.processId = str(processId)
@@ -346,7 +346,7 @@ class JobConfig(object):
             for name,obj in process.__dict__.iteritems():
                 if hasattr(obj,"processIndex"):
                     obj.processIndex = int(self.processIndex)
-                    
+
             lumisToSkip = None
             if isdata:
                 lumisToSkip = self.samplesMan.getLumisToSkip(dsetname)
@@ -358,12 +358,12 @@ class JobConfig(object):
 
                 import FWCore.PythonUtilities.LumiList as LumiList
                 target = LumiList.LumiList(filename = self.lumiMask)
-                if lumisToSkip: 
-                    target = target.__sub__(lumisToSkip)                    
+                if lumisToSkip:
+                    target = target.__sub__(lumisToSkip)
                 process.source.lumisToProcess = target.getVLuminosityBlockRange()
 
                 print process.source.lumisToProcess
-            
+
         flist = []
         for f in files:
             if len(f.split(":",1))>1:
@@ -379,7 +379,7 @@ class JobConfig(object):
             else:
                 ## process.source.fileNames.extend([ str("%s%s" % (self.filePrepend,f)) for f in  files])
                 process.source.fileNames = flist
- 
+
         ## fwlite
         if isFwlite:
             process.fwliteInput.maxEvents = self.options.maxEvents
@@ -387,20 +387,20 @@ class JobConfig(object):
         ## full framework
         else:
             process.maxEvents.input = self.options.maxEvents
-            
+
             if hasOutput:
                 process.out.fileName = self.outputFile
 
             if hasTFile:
                 process.TFileService.fileName = tfile
-    
+
         if self.tfileOut:
             if hasTFile:
                 print "Could not run with both TFileService and custom tfileOut"
                 sys.exit(-1)
             name,attr = self.tfileOut
             setattr( getattr( process, name ), attr, tfile )
-            
+
 
         if self.dumpPython != "":
             from gzip import open
@@ -419,13 +419,13 @@ class JobConfig(object):
         self.processIndex = self.options.processIndex
         if self.options.processIdMap != "":
             self.readProcessIdMap(self.options.processIdMap)
-        
+
         if self.useAAA:
        #     self.filePrepend = "root://xrootd-cms.infn.it/"
             self.filePrepend = "root://cms-xrd-global.cern.ch/"
         elif self.useEOS:
             self.filePrepend = "root://eoscms.cern.ch//eos/cms"
-        
+
         self.samplesMan = None
         dataset = None
         if self.dataset != "":
@@ -437,10 +437,10 @@ class JobConfig(object):
                 dataset = self.samplesMan.getDatasetMetaData(self.options.maxEvents,self.dataset,jobId=-1,nJobs=self.nJobs,weightName=self.WeightName)
             else:
                 dataset = self.samplesMan.getDatasetMetaData(self.options.maxEvents,self.dataset,jobId=self.jobId,nJobs=self.nJobs,weightName=self.WeightName)
-            if not dataset: 
+            if not dataset:
                 print "Could not find dataset %s in campaing %s/%s" % (self.dataset,self.metaDataSrc,self.campaing)
                 sys.exit(-1)
-                
+
         self.dataset = dataset
         # auto-detect data from xsec = 0
         if self.dataset:
@@ -452,9 +452,9 @@ class JobConfig(object):
             else:
                 if self.processType == "" and xsec["xs"] == 0.:
                     self.processType = "data"
-                    
+
             self.processId = self.getProcessId(name)
-            
+
         outputFile=self.outputFile
         if self.jobId != -1:
             outputFile = "%s_%d.root" % ( outputFile.replace(".root",""), self.jobId )
@@ -467,14 +467,14 @@ class JobConfig(object):
         if type(self.dataset) == tuple:
             return self.dataset[0]
         return self.dataset
-    
+
     def getProcessId(self,name):
         return self.getProcessId_(name).replace("/","").replace("-","_")
-    
+
     def getProcessId_(self,name):
         if self.processId != "":
             return self.processId
-        
+
         ## print name, self.processIdMap
         if name in self.processIdMap:
             return self.processIdMap[name]
@@ -486,18 +486,18 @@ class JobConfig(object):
         primSet = "/"+primSet
         if primSet in self.processIdMap:
             return self.processIdMap[primSet]
-        
+
         if self.secondaryDatasetInProcId:
             return primSet + "_" + secSet
         return primSet
 
     def readProcessIdMap(self,fname):
-        
+
         with open(fname) as fin:
             import json
 
             cfg = json.loads(fin.read())
-            
+
             processes = cfg["processes"]
             for key,val in processes.iteritems():
                 for dst in val:
@@ -506,9 +506,9 @@ class JobConfig(object):
                     else:
                         name = dst
                     self.processIdMap[name] = key
-            
+
             fin.close()
 
-        
+
 # customization object
 customize = JobConfig()

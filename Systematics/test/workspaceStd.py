@@ -180,7 +180,7 @@ if customize.doFiducial:
     matchCut = "leadingPhoton.hasMatchedGenPhoton() && subLeadingPhoton.hasMatchedGenPhoton()"
     phoIDcut = '(leadingView().phoIdMvaWrtChosenVtx() >0.320 && subLeadingView().phoIdMvaWrtChosenVtx() >0.320)'
     accCut   = fc.getAccRecoCut()
-    
+
     print process.flashggPreselectedDiPhotons.cut
 
     if customize.acceptance == 'IN':
@@ -188,7 +188,7 @@ if customize.doFiducial:
 
     if customize.acceptance == 'OUT':
         process.flashggPreselectedDiPhotons.cut = cms.string(str(process.flashggPreselectedDiPhotons.cut)[12:-2] +' && '+ str(matchCut)+ ' && '+ str(phoIDcut) +' && !' + str(accCut))
-        
+
     if customize.acceptance == 'NONE':
         process.flashggPreselectedDiPhotons.cut = cms.string(str(process.flashggPreselectedDiPhotons.cut)[12:-2] +' && '+ str(phoIDcut))
     print "Here we print the preslection cut"
@@ -244,7 +244,7 @@ else:
         allowLargettHMVAs(process)
 
 if customize.doDoubleHTag:
-    import flashgg.Systematics.doubleHCustomize 
+    import flashgg.Systematics.doubleHCustomize
     hhc = flashgg.Systematics.doubleHCustomize.DoubleHCustomize(process, customize, customize.metaConditions)
     minimalVariables += hhc.variablesToDump()
     systematicVariables = hhc.systematicVariables()
@@ -259,15 +259,15 @@ if customize.doFiducial:
     process.flashggTagSorter.TagPriorityRanges = cms.VPSet(     cms.PSet(TagName = cms.InputTag('flashggSigmaMoMpToMTag')) )
 
 if customize.tthTagsOnly:
-    process.flashggTagSorter.TagPriorityRanges = cms.VPSet(   
+    process.flashggTagSorter.TagPriorityRanges = cms.VPSet(
         cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag')),
-        cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag')) 
+        cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag'))
     )
 
     print "customize.processId:",customize.processId
 
     print "Removing FracRVNvtxWeight from syst and adding  PixelSeed"
-    
+
     newvpset = cms.VPSet()
     for pset in process.flashggDiPhotonSystematics.SystMethods:
         if not pset.Label.value().count("FracRVNvtxWeight") :
@@ -275,9 +275,9 @@ if customize.tthTagsOnly:
             newvpset += [pset]
     #from flashgg.Systematics.flashggDiPhotonSystematics_cfi import PixelSeedWeight #FIXME: this does not currently work, so comment it out for now
     #newvpset += [ PixelSeedWeight ]
-    
+
     process.flashggDiPhotonSystematics.SystMethods = newvpset
-   
+
 
 print "customize.processId:",customize.processId
 # load appropriate scale and smearing bins here
@@ -291,7 +291,7 @@ useEGMTools(process)
 # convention: ggh vbf wzh (wh zh) tth
 signal_processes = ["ggh_","vbf_","wzh_","wh_","zh_","bbh_","thq_","thw_","tth_","HHTo2B2G","GluGluHToGG","VBFHToGG","VHToGG","ttHToGG","Acceptance"]
 is_signal = reduce(lambda y,z: y or z, map(lambda x: customize.processId.count(x), signal_processes))
-#if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("Acceptance") or customize.processId.count("hh_"): 
+#if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("Acceptance") or customize.processId.count("hh_"):
 if is_signal:
     print "Signal MC, so adding systematics and dZ"
     if customize.doHTXS:
@@ -305,7 +305,7 @@ if is_signal:
         variablesToUse.append("decorrSigmarv := diPhotonMVA().decorrSigmarv")
         variablesToUse.append("leadmva := diPhotonMVA().leadmva")
         variablesToUse.append("subleadmva := diPhotonMVA().subleadmva")
-    
+
     if customize.doSystematics:
         for direction in ["Up","Down"]:
             phosystlabels.append("MvaShift%s01sigma" % direction)
@@ -400,7 +400,7 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("test.root"))
 
 process.extraDumpers = cms.Sequence()
-process.load("flashgg.Taggers.diphotonTagDumper_cfi") ##  import diphotonTagDumper 
+process.load("flashgg.Taggers.diphotonTagDumper_cfi") ##  import diphotonTagDumper
 import flashgg.Taggers.dumperConfigTools as cfgTools
 
 
@@ -478,7 +478,7 @@ definedSysts=set()
 process.tagsDumper.NNLOPSWeightFile=cms.FileInPath("flashgg/Taggers/data/NNLOPS_reweight.root")
 process.tagsDumper.reweighGGHforNNLOPS = cms.untracked.bool(bool(customize.processId.count("ggh")))
 process.tagsDumper.classifierCfg.remap=cms.untracked.VPSet()
-for tag in tagList: 
+for tag in tagList:
   tagName=tag[0]
   tagCats=tag[1]
   # remap return value of class-based classifier
@@ -495,7 +495,7 @@ for tag in tagList:
       else:
           if customize.doHTXS:
               currentVariables = systematicVariablesHTXS
-          else:    
+          else:
               currentVariables = systematicVariables
       if tagName == "NoTag":
           if customize.doHTXS:
@@ -519,7 +519,7 @@ for tag in tagList:
                            systlabel,
                            classname=tagName,
                            cutbased=cutstring,
-                           subcats=tagCats, 
+                           subcats=tagCats,
                            variables=currentVariables,
                            histograms=minimalHistograms,
                            binnedOnly=isBinnedOnly,
@@ -604,7 +604,6 @@ if customize.tthTagsOnly:
                          process.tagsDumper)
     # Now, we put the ttH tags back in the sequence with modified systematics workflow
     modifySystematicsWorkflowForttH(process, systlabels, phosystlabels, metsystlabels, jetsystlabels)
-
 else :
     process.p = cms.Path(process.dataRequirements*
                          process.genFilter*
@@ -623,7 +622,7 @@ if customize.doBJetRegression:
 
     bregProducers = []
     doubleHTagProducers = []
-    
+
     from flashgg.Taggers.flashggTags_cff import UnpackedJetCollectionVInputTag
     from flashgg.Taggers.flashggbRegressionProducer_cfi import flashggbRegressionProducer
     recoJetCollections = UnpackedJetCollectionVInputTag
@@ -645,14 +644,14 @@ if customize.doBJetRegression:
     bregProducers.append(producer)
     process.bregProducers = cms.Sequence(reduce(lambda x,y: x+y, bregProducers))
     process.p.replace(process.jetSystematicsSequence,process.jetSystematicsSequence*process.flashggUnpackedJets+process.bregProducers)
-    
+
 
 if customize.doDoubleHTag:
     hhc.doubleHTagRunSequence(systlabels,jetsystlabels,phosystlabels)
-  
+
 
 if customize.doFiducial:
-    if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) 
+    if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG"))
                                                                    or customize.processId.count("h_") or customize.processId.count("vbf_") ) and (systlabel ==  ""):
           print "Signal MC central value, so dumping PDF weights"
           dumpPdfWeights = True
@@ -691,7 +690,7 @@ process.flashggTagSorter.BlindedSelectionPrintout = True
 
 #####################################################################
 ## Memory and timing, n.b. igprof is very complicated to interpret ##
-##################################################################### 
+#####################################################################
 
 #from Validation.Performance.TimeMemoryInfo import customise as TimeMemoryCustomize
 #TimeMemoryCustomize(process)
@@ -723,7 +722,7 @@ if customize.verboseTagDump:
     process.flashggUpdatedIdMVADiPhotons.Debug = True
     process.flashggTagSorter.Debug = True
     customize.maxEvents = 10
-                           
+
 if customize.verboseSystDump:
     turnOnAllSystematicsDebug(process)
     customize.maxEVents = 10
@@ -745,3 +744,10 @@ if customize.verboseSystDump:
 #print >> processDumpFile, process.dumpPython()
 # call the customization
 customize(process)
+
+if is_signal:
+    remotefilename = (process.source.fileNames)[0]
+    from subprocess import call
+    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
+    localfilename = remotefilename.split("/")[-1]
+    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))

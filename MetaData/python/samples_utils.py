@@ -7,7 +7,7 @@ from pprint import pprint
 from hashlib import sha256
 
 import os,json,fcntl,sys
-from parallel  import *
+#from parallel  import *
 from threading import Semaphore
 from fnmatch import fnmatch
 import commands
@@ -37,13 +37,13 @@ def shell_expand(string):
 def ask_user(question,responses=["y","n"]):
     reply = None
     while not reply in responses:
-        print "%s [%s]" % ( question, "".join(responses) ), 
+        print "%s [%s]" % ( question, "".join(responses) ),
         reply = raw_input()
     return reply
 
 # -------------------------------------------------------------------------------
 class SamplesManager(object):
-    
+
     def __init__(self,
                  catalog,
                  cross_sections=["$CMSSW_BASE/src/flashgg/MetaData/data/cross_sections.json"],
@@ -63,7 +63,7 @@ class SamplesManager(object):
         for xsecFile in cross_sections:
             fname = shell_expand(xsecFile)
             self.cross_sections_.update( json.loads( open(fname).read() ) )
-        
+
         if type(catalog) != list:
             if "*" in catalog:
                 expanded = glob.glob(shell_expand(catalog))
@@ -84,7 +84,7 @@ class SamplesManager(object):
 
         print "Will use the following datasets catalog:"
         print self.catalog_
-        
+
         self.queue_ = queue
         self.maxThreads_ = maxThreads
         self.force_ = force
@@ -94,11 +94,11 @@ class SamplesManager(object):
 
     def importFromCatalog(self,src,pattern):
         print "importing datasets from catalog %s" % src
-        
+
         mine = self.readCatalog()
-        
+
         other = self.readCatalog(path=src)
-        
+
         doAll = False
         for key,val in other.iteritems():
             if (key == pattern or fnmatch(key,pattern)):
@@ -113,7 +113,7 @@ class SamplesManager(object):
                         self.mergeDataset(mine[key],val)
                     else:
                         mine[key] = val
-                        
+
         self.writeCatalog(mine)
 
     def importFromDAS(self,list_datasets):
@@ -121,14 +121,14 @@ class SamplesManager(object):
         Import datasets from DAS to the catalog.
         @datasets: wildecard to be usd in dataset query
         """
-        # 
+        #
         ret,out = commands.getstatusoutput("voms-proxy-info -e")
         if ret != 0:
             print "\n\nNo valid voms proxy found. This is needed to query DAS.\nPlease create a valid proxy running the following command:\nvoms-proxy-init -voms cms\n"
             sys.exit(-1)
-        
+
         catalog = self.readCatalog()
-        
+
         print "Importing from das %s" % list_datasets
         datasets = []
         for dataset in list_datasets:
@@ -150,11 +150,11 @@ class SamplesManager(object):
             print "Importing %s" % dsetName
             files = self.getFilesFomDAS(dsetName)
             self.addToDataset(catalog,dsetName,files)
-            
+
         print "Writing catalog"
         self.writeCatalog(catalog)
         print "Done"
-    
+
 
     def getFilesFomDAS(self,dsetName):
         """
@@ -164,13 +164,13 @@ class SamplesManager(object):
         ## response = das_query("https://cmsweb.cern.ch","file dataset=%s | grep file.name,file.nevents" % dsetName, 0, 0, False, self.dbs_instance_, ckey=x509(), cert=x509())
         ## response = das_query("https://cmsweb.cern.ch","file dataset=%s instance=%s | grep file.name,file.nevents" % (dsetName,self.dbs_instance_), 0, 0, False, ckey=x509(), cert=x509())
         response = das_query("file dataset=%s instance=%s | grep file.name,file.nevents" % (dsetName,self.dbs_instance_))
-        
+
         files=[]
         for d in response["data"]:
             for jf in d["file"]:
                 if "nevents" in jf:
                     files.append({ "name" : jf["name"], "nevents" : jf["nevents"] })
-                    break                
+                    break
         return files
 
     def importFromEOS(self,folders):
@@ -179,7 +179,7 @@ class SamplesManager(object):
         @datasets: dataset to be imported
         """
         catalog = self.readCatalog()
-        
+
         auto=False
         assumeOk=False
         for folder in folders:
@@ -187,7 +187,7 @@ class SamplesManager(object):
 
             print
             print "importing folder\n %s" % folder
-            
+
             while not len(dsetName.split("/")) == 4:
                 if auto:
                     splitFolder = folder.split("/")
@@ -208,26 +208,26 @@ class SamplesManager(object):
                         auto=True
                     elif (dsetName=="noauto"):
                         auto=False
-                
-                
+
+
             print "Importing %s as %s" % (folder,dsetName)
-            files = self.getFilesFomEOS(folder)            
+            files = self.getFilesFomEOS(folder)
             self.addToDataset(catalog,dsetName,files)
-            
+
         print "Writing catalog"
         self.writeCatalog(catalog)
         print "Done"
-        
+
     def getFilesFomEOS(self,dsetName):
         """
         Read dataset files crawling EOS.
         @dsetName: dataset name
         Note: not implemented
         """
-        
+
         if not self.parallel_:
             self.parallel_ = Parallel(200,self.queue_,maxThreads=self.maxThreads_,asyncLsf=True)
-        
+
         ret,out = self.parallel_.run("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select",["find",dsetName],interactive=True)[2]
         files = []
         for line in out.split("\n"):
@@ -243,7 +243,7 @@ class SamplesManager(object):
         Note: not implemented
         """
         pass
-    
+
     def invalidateBadFiles(self,dsetName):
         """
         Invalidate duplicate job output and corrupted files in DAS.
@@ -257,33 +257,33 @@ class SamplesManager(object):
         Look for corrupted files in the whole catalog.
         """
         catalog = self.readCatalog()
-        
+
         self.just_open_ = justOpen
         factory = WorkNodeJobFactory(os.getcwd(),stage_patterns=[".tmp*.json"],job_outdir=".fgg",copy_proxy=self.copyProxy_)
         self.parallel_ = Parallel(50,self.queue_,maxThreads=self.maxThreads_,asyncLsf=True,lsfJobName=".fgg/job",jobDriver=factory)
         ## self.parallel_ = Parallel(1,self.queue_)
-        
+
         print "Checking all datasets"
         self.outcomes = []
-        for dataset in catalog.keys():  
-            if match and not (dataset == match or fnmatch(dataset,match)): 
+        for dataset in catalog.keys():
+            if match and not (dataset == match or fnmatch(dataset,match)):
                 continue
             self.checkDatasetFiles(dataset,catalog,light=light)
         # write catalog to avoid redoing duplicates removal
         self.writeCatalog(catalog)
-                
+
         if self.queue_:
             self.parallel_.wait(printOutput=True,handler=self)
             outcomes = self.outcomes
         else:
             outcomes = self.parallel_.wait(printOutput=False)
-            
+
         nfailed = 0
         for oc in outcomes:
             try:
                 ign1, ign2, outcome= oc
             except:
-                outcome = None                
+                outcome = None
             if not outcome:
                 if not self.continue_:
                     print "Error getting file check outcome. Someting went wrong.... \n", oc
@@ -310,7 +310,7 @@ class SamplesManager(object):
                             info["bad"] = True
                         for key,val in extraInfo.iteritems():
                             info[key] = val
-                            
+
         self.parallel_.stop()
 
         print "Writing catalog"
@@ -318,18 +318,18 @@ class SamplesManager(object):
         print "Done"
 
         if nfailed > 0:
-            print 
+            print
             print "WARNING: some of the check jobs failed or did not return any output."
             print "         Those (%d) files were marked a bad and won't be usable for analysis." % nfailed
             print "         Re-running the check command may recover the temporary failures."
-            print 
-        
+            print
+
         if self.queue_:
-            print 
+            print
             print "Note: log files may have been written in ./.fgg"
             print "      it's up to you to clean up though..."
 
-    
+
     def checkDatasetFiles(self,dsetName,catalog=None,light=False):
         """
         Look for corrupted files in dataset.
@@ -340,18 +340,18 @@ class SamplesManager(object):
         if not catalog:
             catalog = self.readCatalog()
             writeCatalog = True
-        
+
         wait = False
         if not self.parallel_:
             self.parallel_ = Parallel(16,self.queue_,maxThreads=self.maxThreads_,asyncLsf=True)
             wait = True
 
-        print 
+        print
         print "Checking dataset",dsetName
         info = catalog[dsetName]
         files = info["files"]
         print "Number of files: ", len(files)
-        
+
         if self.force_ or not catalog[dsetName].get("vetted",False):
             toremove = []
             keep_wildcard=None
@@ -372,19 +372,19 @@ class SamplesManager(object):
                                 print eifil["name"]
                                 print ejfil["name"]
                                 reply=ask_user("keep both (yes/no/matching)? ",["y","n","m"])
-                                if reply == "m":             
+                                if reply == "m":
                                     while not keep_wildcard:
                                         print "enter wildcard matching expression",
                                         keep_wildcard=raw_input()
                                         if ask_user("keep all files matching '%s'?" % keep_wildcard) == "n":
                                             keep_wildcard=None
-                            if keep_wildcard:                            
+                            if keep_wildcard:
                                 imatch=fnmatch(eifil["name"],keep_wildcard)
                                 jmatch=fnmatch(ejfil["name"],keep_wildcard)
                                 if imatch != jmatch:
                                     if imatch: toremove.append(ifil+jfil)
-                                    else: toremove.append(ifil)                            
-                                    continue                       
+                                    else: toremove.append(ifil)
+                                    continue
                                 else:
                                     print "duplicated file index ", iid
                                     print eifil["name"]
@@ -395,17 +395,17 @@ class SamplesManager(object):
                                     toremove.append(ifil+jfil)
                                 if ask_user( "keep %s? " % eifil["name"] ) == "n":
                                     toremove.append(ifil)
-                                    
+
             for ifile in sorted(toremove,reverse=True):
                 files.pop(ifile)
-            
+
         print "After duplicates removal: ", len(files)
         nsub = 0
         catalog[dsetName]["vetted"] = True
         if not light:
             info = catalog[dsetName]["files"] = files
-            for ifile,finfo in enumerate(files):            
-                name = finfo["name"]                
+            for ifile,finfo in enumerate(files):
+                name = finfo["name"]
                 if self.force_ or not "weights" in finfo:
                     nsub+=1
                     self.parallel_.run(SamplesManager.checkFile,[self,name,dsetName,ifile],interactive=(self.queue_!=None))
@@ -413,11 +413,11 @@ class SamplesManager(object):
             print "No files needed to be checked"
         else:
             print "Submitted %d check jobs" % nsub
-            
+
         if wait:
-            self.parallel_.wait(printOutput=False)            
+            self.parallel_.wait(printOutput=False)
             self.parallel_ = None
-            
+
         if writeCatalog:
             self.writeCatalog(catalog)
 
@@ -439,16 +439,16 @@ class SamplesManager(object):
                 if reply == "n":
                     catalog.pop(d)
                     continue
-                if reply == "a": 
+                if reply == "a":
                     keepAll = True
             primary,secondary = d.split("/")[1:3]
             search = dataregex.search(secondary)
             if search: primary += "/%s" % search.group()
             if not primary in primaries:
                 primaries[ primary ] = []
-                
+
             primaries[ primary ].append(d)
-            
+
         for name,val in primaries.iteritems():
             if len(val) == 1: continue
             reply = ask_user("More than one sample for %s:\n %s\nKeep all (yes/no/merge)?" % (name,"\n ".join(val)),["y","n","m"])
@@ -462,12 +462,12 @@ class SamplesManager(object):
                     reply = ask_user("keep this dataset?\n %s\n" % d)
                     if reply == "n":
                         catalog.pop(d)
-           
+
         self.writeCatalog(catalog)
-        
+
     def mergeDataset(self,dst,merge):
         dst["vetted"]=False
-        
+
         from FWCore.PythonUtilities.LumiList import LumiList
         dstLumisToSkip = LumiList(compactList=dst.get('lumisToSkip',{}))
         mergeLumisToSkip = LumiList(compactList=merge.get('lumisToSkip',{}))
@@ -476,7 +476,7 @@ class SamplesManager(object):
         if len(dstLumisToSkip) > 0:
             dst['lumisToSkip'] = dstLumisToSkip
             print "\nWARNING: Merged lumisToSkip list. It is reccomended to run the 'overlap' command to re-geneate the list from scratch."
-        
+
         dstFiles=dst["files"]
         mergeFiles=merge["files"]
         for fil in mergeFiles:
@@ -486,7 +486,7 @@ class SamplesManager(object):
                     skip = True
             if not skip:
                 dstFiles.append( fil )
-        
+
     def getParentInfo(self, dset_type, dsetName):
         parent_n_info = 'nlumis' if dset_type=='data' else 'nevents'
         parent_dset = das_query("parent dataset=%s instance=prod/phys03" % dsetName)['data'][0]['parent'][0]['name']
@@ -495,7 +495,7 @@ class SamplesManager(object):
             parent_info = parent_info['data'][-1]['dataset'][0][parent_n_info]
         except KeyError:
             parent_info = None
-        
+
         return parent_info
 
     def addToDataset(self,catalog,dsetName,files):
@@ -517,7 +517,7 @@ class SamplesManager(object):
             parent_info = self.getParentInfo(dset_type, dsetName) if dset_type else None
 
             catalog[ dsetName ] = { "files" : files, "parent_n_units" : parent_info, "dset_type" : dset_type }
-            
+
 
     def checkFile(self,fileName,dsetName,ifile):
         """
@@ -553,7 +553,7 @@ class SamplesManager(object):
             return
         else:
             ret,out = self.parallel_.run("fggCheckFile.py",[fName,tmp,dsetName,str(ifile),weights_to_load,LHE_Branch_Name],interactive=True)[2]
-            
+
         if ret != 0:
             print "ERROR checking %s" % fName
             print out
@@ -567,18 +567,18 @@ class SamplesManager(object):
             fout.close()
             os.remove(tmp)
         except Exception, e:
-            print ret, out 
+            print ret, out
             print e
             out = "{}"
 
         return dsetName,int(ifile),fileName,ret,out
-    
+
     def handleJobOutput(self,job,jobargs,ret):
-        
+
         ## print( "handleJobOutput" )
         ## print(job)
         ## print(jobargs)
-        
+
         jobargs = jobargs[0].split(" ")[1:]
 
         fileName = jobargs[0]
@@ -590,10 +590,10 @@ class SamplesManager(object):
         elif len(ret) == 3:
             ret,out,jid = ret
 
-        self.outcomes.append( (None,None,self.readJobOutput(tmp,ret,out,dsetName,fileName,ifile))) 
+        self.outcomes.append( (None,None,self.readJobOutput(tmp,ret,out,dsetName,fileName,ifile)))
         return 0
         ## return dsetName,ifile,fileName,ret,out
-    
+
     def getDatasetLumiList(self,name,catalog,check=False):
         from FWCore.PythonUtilities.LumiList import LumiList
 
@@ -613,19 +613,19 @@ class SamplesManager(object):
                     print "Warning: duplicate lumi sections in dataset. %s" % fil.get("name")
                     print andlist, flist
             dlist += flist
-        
+
         return dlist
 
     def getOverlaps(self,*args):
         catalog = self.readCatalog(True)
-        
+
         datasets = {}
         for dataset in catalog.keys():
             for arg in args:
                 if dataset == arg or fnmatch(dataset,arg):
                     datasets[dataset] = self.getDatasetLumiList(dataset,catalog,check=True)
                     break
-        
+
         keys = datasets.keys()
         for ik,ikey in enumerate(keys):
             for jkey in keys[ik+1:]:
@@ -637,10 +637,10 @@ class SamplesManager(object):
                 if len(overlaps) > 0:
                     for key in ikey,jkey:
                         reply=ask_user("\nMask lumi sections in\n %s (yes/no)? " % key,["y","n"])
-                        if reply == 'y': 
+                        if reply == 'y':
                             catalog[key]["lumisToSkip"] = overlaps
                             break
-                        
+
         print "Writing catalog"
         self.writeCatalog(catalog)
         print "Done"
@@ -652,12 +652,12 @@ class SamplesManager(object):
             return None
 
         from FWCore.PythonUtilities.LumiList import LumiList
-        
+
         return LumiList( compactList=catalog[dataset].get('lumisToSkip',{}) )
-    
+
 
     def getLumiList(self,*args):
-        
+
         catalog = self.readCatalog(True)
         datasets = []
         output = filter(lambda x: "output=" in x, args)
@@ -671,13 +671,13 @@ class SamplesManager(object):
             print "ERROR: you specified the output json more than once:\n"
             print "      %s" % " ".join(output)
             sys.exit(-1)
-        
+
 
         if len(output) > 0:
             output = output[0].replace("output=","")
         else:
             output = None
-            
+
         from FWCore.PythonUtilities.LumiList import LumiList
         fulist = LumiList()
         for dataset in datasets:
@@ -694,26 +694,26 @@ class SamplesManager(object):
                     fout.close()
             else:
                 fulist += dlist
-                
+
         if output:
             with open(output,"w+") as fout:
                 fout.write(json.dumps(fulist.compactList,sort_keys=True))
                 fout.close()
-        
+
     def lockCatalog(self):
         """
         Lock catalog file for writing.
         Note: not implemented.
         """
         pass
-    
+
     def unlockCatalog(self):
         """
         Unlock catalog file for writing.
         Note: not implemented.
         """
         pass
-    
+
     def loadCatalogFile(self,throw,path):
         if os.path.exists(path):
             return json.loads( open(path).read() )
@@ -731,7 +731,7 @@ class SamplesManager(object):
             path = self.catalog_
             storeSrc = True
             self.src_ = {}
-            
+
         if type(path) == str:
             path = [path]
 
@@ -741,16 +741,16 @@ class SamplesManager(object):
             if storeSrc:
                 self.src_[ ip ] = part.keys()
             catalog.update(part)
-        
+
         return catalog
-    
+
     def writeCatalogFile(self,name,part):
         with open(name,"w+") as fout:
             fout.write( json.dumps(part,indent=4,sort_keys=True) )
             fout.close()
-        
+
     def sortDatasetFiles(self,content,rebuild):
-        
+
         files = set(self.src_.keys())
         dirname = map(os.path.dirname, files)[0]
         if rebuild:
@@ -762,11 +762,11 @@ class SamplesManager(object):
             files = [onefile]
         fileIds = map(lambda x: (lambda y: 0 if not y.isdigit() else int(y) )(os.path.basename(x).replace(".json","").rsplit("_")[-1]),  files )
         maxId = max(fileIds)
-            
+
         entriesPerFile = {}
         entriesPerDataset = {}
         for dset,info in content.iteritems():
-            entriesPerDataset[dset] = len(info["files"])            
+            entriesPerDataset[dset] = len(info["files"])
         for ifile,idatasets in self.src_.iteritems():
             print map(entriesPerDataset.get,idatasets)
             theMap = map(entriesPerDataset.get,idatasets)
@@ -777,7 +777,7 @@ class SamplesManager(object):
 #                        theMap[i][j] = 0
             print theMap
             entriesPerFile[ifile] = sum( theMap )
-        
+
         done = False
         aboveThr = filter(lambda x: entriesPerFile[x]>self.max_entries_per_file_ and len(self.src_[x])>1, files  )
         belowThr = set(filter(lambda x: entriesPerFile[x]<self.max_entries_per_file_, files  ))
@@ -790,9 +790,9 @@ class SamplesManager(object):
                         break
                 move = self.src_[ifile][idset:]
                 entriesPerFile[ifile] = entries
-                
+
                 self.src_[ifile] = self.src_[ifile][:idset]
-                
+
                 for dset in move:
                     entries = entriesPerDataset.get(dset)
                     moved = False
@@ -819,27 +819,27 @@ class SamplesManager(object):
         Write catalog to JSON file.
         @content: catalog content.
         """
-        
+
         dsets = set(content.keys())
         # check if new datasets were added since last write and provisionally add them to a file
         new = dsets - set( reduce(lambda x,y: x+y, self.src_.values(), []) )
         self.src_[ sorted(self.src_)[-1]  ].extend(list(new))
-        
+
         self.sortDatasetFiles(content,rebuild)
-        
+
         print ("Catalog will be split into %d files" % len(self.catalog_) )
         for ifile in self.catalog_:
             dirname = os.path.dirname(ifile)
             if not os.path.exists( dirname ):
                 os.mkdir( dirname )
-                
+
             part = {}
             for dset in self.src_[ ifile ]:
                 if dset in dsets:
                     part[dset] = content[dset]
                     dsets.remove( dset  )
             self.writeCatalogFile( ifile, part )
-            
+
 
     def getDatasetMetaData(self,maxEvents,primary,secondary=None,jobId=-1,nJobs=0,weightName=None):
         """
@@ -847,9 +847,9 @@ class SamplesManager(object):
         @maxEvents: maximum number of events to read.
         @primary: primary dataset name.
         @secondary: secondary dataset name.
-        
+
         returns: tuple containing datasetName,cross-section,numberOfEvents,listOfFiles,specialPrepend
-        
+
         """
         catalog = self.readCatalog(True)
         print primary
@@ -874,7 +874,7 @@ class SamplesManager(object):
                     xsec = self.cross_sections_[prim]
                 if "weights" in xsec and weightName:
                     if weightName not in xsec["weights"].split(","):
-                        print weightName, " is not available in ", primary 
+                        print weightName, " is not available in ", primary
                         weightName = None
                 else :
                     weightName = None
@@ -890,18 +890,18 @@ class SamplesManager(object):
                     allFiles.append(name)
                     if maxEvents > -1 and totEvents > maxEvents:
                         break
-                specialPrepend = info.get("specialPrepend","")    
+                specialPrepend = info.get("specialPrepend","")
         if not found:
             raise Exception("No dataset matched the request: /%s/%s" % ( primary, str(secondary) ))
-        
+
         if jobId != -1 and maxEvents > -1 and totEvents > maxEvents:
             totWeights = maxEvents / totEvents * totWeights
             totEvents = maxEvents
         maxEvents = int(totEvents)
-        
+
         if totWeights != 0.:
             totEvents = totWeights
-            
+
         if jobId != -1:
             files = [ allFiles[i] for i in range(jobId,len(allFiles),nJobs) ]
         else:
@@ -913,22 +913,22 @@ class SamplesManager(object):
         catalog = self.readCatalog()
         datasets = sorted(catalog.keys())
         return datasets,catalog
-    
+
     def clearCatalog(self):
         self.writeCatalog({})
-    
+
 # -------------------------------------------------------------------------------
 class SamplesManagerCli(SamplesManager):
-    
+
     def __init__(self,*args,**kwargs):
 
         commands = [ "",
-                     "import    [list_of_wildcards]                    imports datasets from DBS to catalog", 
-                     "eosimport <list_of_folders>                      imports datasets from EOS", 
-                     "catimport [source:]<catalog_name> <wildcard>     imports datasets from another catalog", 
-                     "list      [raw|wildcard]                         lists datasets in catalog", 
-                     "review                                           review catalog to remove datasets", 
-                     "rebuild                                          rebuild catalog", 
+                     "import    [list_of_wildcards]                    imports datasets from DBS to catalog",
+                     "eosimport <list_of_folders>                      imports datasets from EOS",
+                     "catimport [source:]<catalog_name> <wildcard>     imports datasets from another catalog",
+                     "list      [raw|wildcard]                         lists datasets in catalog",
+                     "review                                           review catalog to remove datasets",
+                     "rebuild                                          rebuild catalog",
                      "check      [wildcard]                            check duplicate files and errors in datasets and mark bad files",
                      "checkopen  [wildcard]                            as above but just try open file",
                      "checklite  [wildcard]                            check for duplicate files in datasets",
@@ -936,7 +936,7 @@ class SamplesManagerCli(SamplesManager):
                      "overlap    [wildcard|datasets]                   checks overlap between datatasets",
                      "listcampaigns                                    prints the campaign names (takes into account the meta data source option)",
                      ]
-        
+
         parser = OptionParser(
             usage="""%%prog [options] <command> [[command2] [command3] ..]
 
@@ -949,7 +949,7 @@ Commands:
                 make_option("-V","--flashggVersion",
                             action="store", dest="flashggVersion", type="string",
                             default="*",
-                            help="FLASHgg version to use (only relevant when importing). default: %default", 
+                            help="FLASHgg version to use (only relevant when importing). default: %default",
                             ),
                 make_option("-C","--campaign",
                             dest="campaign",action="store",type="string",
@@ -1005,26 +1005,26 @@ Commands:
                             help="default: %default",)
                 ]
                               )
-        
+
         # parse the command line
         (self.options, self.args) = parser.parse_args()
-        
-    
+
+
     def __call__(self):
-        
+
         (options,args) = (self.options,self.args)
-        
+
         print options
         self.mn = SamplesManager("$CMSSW_BASE/src/%s/MetaData/data/%s/datasets*.json" % (options.metaDataSrc,options.campaign),
                                  dbs_instance=options.dbs_instance,
                                  force=options.doForce,
                                  queue=options.queue,maxThreads=options.max_threads,doContinue=options.doContinue,
                                  copyProxy=options.copy_proxy)
-        
+
         ## pprint( mn.cross_sections_ )
         if len(args) == 0:
             args = ["list"]
-        
+
         method = getattr(self,"run_%s" % args[0],None)
         if not method:
             sys.exit("Unkown command %s" % args[0])
@@ -1032,17 +1032,17 @@ Commands:
             method(*args[1:])
         else:
             method()
-            
+
     def run_import(self,*args):
         if self.options.dataset :
             print self.options.dataset
             self.mn.importFromDAS([self.options.dataset])
         else:
             self.mn.importFromDAS(["/*/*%s-%s*/USER" % (self.options.campaign,self.options.flashggVersion)])
-    
+
     def run_eosimport(self,*args):
         self.mn.importFromEOS(args)
-        
+
     def run_catimport(self,src,pattern):
         if ":" in src:
             print src.split(":")
@@ -1059,14 +1059,14 @@ Commands:
 
     def run_checkopen(self,*args):
         self.mn.checkAllDatasets(*args,match=self.options.dataset,justOpen=True)
-    
+
     def run_getlumi(self,*args):
         self.mn.getLumiList(*args)
-    
+
     def run_overlap(self,*args):
         self.mn.getOverlaps(*args)
 
-    def run_list(self,what=None):        
+    def run_list(self,what=None):
         datasets,catalog = self.mn.getAllDatasets()
         if what=="raw":
             for d in datasets:
@@ -1122,10 +1122,10 @@ Commands:
             totfiles += nfiles
         print "-"*(largest+48)
         print "total".rjust(largest), ("%d" % int(totev)).rjust(11), ("%d" % totfiles).rjust(7)
-        
+
     def run_clear(self):
         self.mn.clearCatalog()
-    
+
     def run_review(self, pattern=None):
         self.mn.reviewCatalog(pattern)
 
@@ -1134,7 +1134,7 @@ Commands:
 
     def run_listcampaigns(self,*args):
         # prints a list of all known campaigns
-        
+
         campaigns = []
         basedir = os.path.expandvars("$CMSSW_BASE/src/%s/MetaData/data" % self.options.metaDataSrc)
 
@@ -1151,7 +1151,7 @@ Commands:
 
                     campaigns.append(fname)
 
-            
+
         campaigns.sort()
         for campaign in campaigns:
             print campaign
