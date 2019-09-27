@@ -74,8 +74,6 @@ namespace flashgg {
         EDGetTokenT<edm::TriggerResults> triggerRECO_;
         string systLabel_;
 
-        EDGetTokenT<double> prefireToken_;
-        bool applyPrefireProbability_;
 
         typedef std::vector<edm::Handle<edm::View<flashgg::Jet> > > JetCollectionVector;
         bool useTTHHadronicMVA_;
@@ -127,7 +125,15 @@ namespace flashgg {
         string _MVAMethod;
         FileInPath topTaggerXMLfile_;
         FileInPath tthVsDiphoDNNfile_;
+        std::vector<double> tthVsDiphoDNN_global_mean_;
+        std::vector<double> tthVsDiphoDNN_global_stddev_;
+        std::vector<double> tthVsDiphoDNN_object_mean_;
+        std::vector<double> tthVsDiphoDNN_object_stddev_;
         FileInPath tthVsttGGDNNfile_;
+        std::vector<double> tthVsttGGDNN_global_mean_;
+        std::vector<double> tthVsttGGDNN_global_stddev_;
+        std::vector<double> tthVsttGGDNN_object_mean_;
+        std::vector<double> tthVsttGGDNN_object_stddev_;
         unique_ptr<TMVA::Reader>TThMva_RunII_;
         FileInPath tthMVA_RunII_weightfile_;
 
@@ -247,7 +253,6 @@ namespace flashgg {
         rhoTag_( consumes<double>( iConfig.getParameter<InputTag>( "rhoTag" ) ) ),
 	    triggerRECO_( consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("RECOfilters") ) ),
         systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
-        prefireToken_ ( consumes<double>( iConfig.getParameter<InputTag> ( "PrefireProbability" ) ) ),
         _MVAMethod( iConfig.getParameter<string> ( "MVAMethod" ) )
     {
         systematicsLabels.push_back("");
@@ -326,8 +331,6 @@ namespace flashgg {
         for (auto & tag : metTags)
            metTokens_.push_back(consumes<edm::View<flashgg::Met>>(tag)); 
 
-        applyPrefireProbability_ = iConfig.getParameter<bool>( "applyPrefireProbability" );
-
         boundaries = iConfig.getParameter<vector<double > >( "Boundaries" );
         assert( is_sorted( boundaries.begin(), boundaries.end() ) ); // 
 
@@ -383,7 +386,15 @@ namespace flashgg {
         tthMVAweightfile_ = iConfig.getParameter<edm::FileInPath>( "tthMVAweightfile" ); 
         topTaggerXMLfile_ = iConfig.getParameter<edm::FileInPath>( "topTaggerXMLfile" );
         tthVsDiphoDNNfile_ = iConfig.getParameter<edm::FileInPath>( "tthVsDiphoDNNfile" );
+        tthVsDiphoDNN_global_mean_ = iConfig.getParameter<std::vector<double>>( "tthVsDiphoDNN_global_mean" );
+        tthVsDiphoDNN_global_stddev_ = iConfig.getParameter<std::vector<double>>( "tthVsDiphoDNN_global_stddev" );
+        tthVsDiphoDNN_object_mean_ = iConfig.getParameter<std::vector<double>>( "tthVsDiphoDNN_object_mean" );
+        tthVsDiphoDNN_object_stddev_ = iConfig.getParameter<std::vector<double>>( "tthVsDiphoDNN_object_stddev" );
         tthVsttGGDNNfile_ = iConfig.getParameter<edm::FileInPath>( "tthVsttGGDNNfile" );
+        tthVsttGGDNN_global_mean_ = iConfig.getParameter<std::vector<double>>( "tthVsttGGDNN_global_mean" );
+        tthVsttGGDNN_global_stddev_ = iConfig.getParameter<std::vector<double>>( "tthVsttGGDNN_global_stddev" );
+        tthVsttGGDNN_object_mean_ = iConfig.getParameter<std::vector<double>>( "tthVsttGGDNN_object_mean" );
+        tthVsttGGDNN_object_stddev_ = iConfig.getParameter<std::vector<double>>( "tthVsttGGDNN_object_stddev" );
         tthMVA_RunII_weightfile_ = iConfig.getParameter<edm::FileInPath>( "tthMVA_RunII_weightfile" );
 
         nJets_ = 0;
@@ -550,6 +561,9 @@ namespace flashgg {
 
             dnn_dipho->SetInputShapes(18, 8, 8);
             dnn_ttGG->SetInputShapes(18, 8, 8);
+
+            dnn_dipho->SetPreprocessingSchemes(tthVsDiphoDNN_global_mean_, tthVsDiphoDNN_global_stddev_, tthVsDiphoDNN_object_mean_, tthVsDiphoDNN_object_stddev_);
+            dnn_ttGG->SetPreprocessingSchemes(tthVsttGGDNN_global_mean_, tthVsttGGDNN_global_stddev_, tthVsttGGDNN_object_mean_, tthVsttGGDNN_object_stddev_);
         }
 
         for (unsigned i = 0 ; i < inputTagJets_.size() ; i++) {
@@ -627,9 +641,6 @@ namespace flashgg {
         Handle<View<flashgg::Met> > METs;
         if (!modifySystematicsWorkflow)
             evt.getByToken( METToken_, METs );
-
-        Handle<double> prefireProb;
-        evt.getByToken( prefireToken_, prefireProb );
 
 	    //Get trigger results relevant to MET filters
         bool passMETfilters = 1;
@@ -1283,11 +1294,6 @@ namespace flashgg {
                         }                    
                     }
                     tthhtags_obj.includeWeights( *dipho );
-                    if (applyPrefireProbability_) {
-                        tthhtags_obj.setWeight("prefireProbability", *(prefireProb.product())); // add the prefire probability
-                        if (!evt.isRealData())
-                            tthhtags_obj.setCentralWeight(tthhtags_obj.centralWeight() * (1. - *(prefireProb.product())) );
-                    }
 
                     tthhtags->push_back( tthhtags_obj );
                     if( ! evt.isRealData() ) {
