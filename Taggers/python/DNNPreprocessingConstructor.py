@@ -1,14 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 import json
+import os
 
 def construct(file, channel):
+    cmsdir = os.environ.get("CMSSW_BASE")
     preprocess_list = {}
-    
-    with open(file, "r") as f_in:
+    with open(cmsdir + "/src/flashgg/" + file, "r") as f_in:
         metadata = json.load(f_in)
-    
+
     scheme = metadata["preprocess_scheme"]
-    
+
     global_features_order = ["lead_eta_", "sublead_eta_", "lead_phi_", "sublead_phi_", "leadptoM_", "subleadptoM_", "maxIDMVA_", "minIDMVA_", "log_met_", "met_phi_", "leadPSV_", "subleadPSV_", "dipho_rapidity_", "dipho_pt_over_mass_", "dipho_delta_R", "max1_btag_", "max2_btag_", "njets_"]
 
     if channel == "Leptonic":
