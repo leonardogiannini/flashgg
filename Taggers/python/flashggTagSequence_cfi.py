@@ -6,11 +6,11 @@ from flashgg.Taggers.flashggTags_cff import *
 from flashgg.Taggers.flashggPreselectedDiPhotons_cfi import flashggPreselectedDiPhotons
 from flashgg.Taggers.flashggTagSorter_cfi import flashggTagSorter
 from flashgg.Taggers.flashggDifferentialPhoIdInputsCorrection_cfi import flashggDifferentialPhoIdInputsCorrection, setup_flashggDifferentialPhoIdInputsCorrection
-
+#from flashgg.Taggers.flashggUpdatedIdMVADiPhotons_cfi import flashggUpdatedIdMVADiPhotons
 def flashggPrepareTagSequence(process, options):
     setup_flashggDifferentialPhoIdInputsCorrection(process, options)
     flashggPreselectedDiPhotons.src = "flashggDifferentialPhoIdInputsCorrection"
-
+#    flashggPreselectedDiPhotons.src = "flashggUpdatedIdMVADiPhotons"
     flashggTagSequence = cms.Sequence(flashggDifferentialPhoIdInputsCorrection
                                       * flashggPreselectedDiPhotons
                                       * flashggDiPhotonMVA
@@ -24,8 +24,8 @@ def flashggPrepareTagSequence(process, options):
                                           + flashggTTHDiLeptonTag
                                           + flashggTTHLeptonicTag
                       + flashggTHQLeptonicTag
-#                                     + flashggTTHHadronicTTag                                      
-#                                     + flashggTTHHadronicLTag                                      
+#                                     + flashggTTHHadronicTTag
+#                                     + flashggTTHHadronicLTag
                                           + flashggTTHHadronicTag
                                       #############old VH tags##############
                                       #                  + flashggVHEtTag

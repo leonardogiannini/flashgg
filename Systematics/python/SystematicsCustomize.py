@@ -97,8 +97,10 @@ def createStandardSystematicsProducers(process, options):
 def modifyTagSequenceForSystematics(process,jetSystematicsInputTags,ZPlusJetMode=False):
     process.flashggTagSequence.remove(process.flashggUnpackedJets) # to avoid unnecessary cloning
     process.flashggTagSequence.remove(process.flashggDifferentialPhoIdInputsCorrection) # Needs to be run before systematics
+    #process.flashggTagSequence.remove(process.flashggUpdatedIdMVADiPhotons)
     from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet,massSearchReplaceAnyInputTag
     massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggDifferentialPhoIdInputsCorrection"),cms.InputTag("flashggDiPhotonSystematics"))
+    #massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggUpdatedIdMVADiPhotons"),cms.InputTag("flashggDiPhotonSystematics"))
     massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggSelectedElectrons"),cms.InputTag("flashggElectronSystematics"))
     massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggSelectedMuons"),cms.InputTag("flashggMuonSystematics"))
     massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggMets"),cms.InputTag("flashggMetSystematics"))
@@ -302,9 +304,14 @@ def runRivetSequence(process, options):
                                      )
     process.p.insert(0, process.mergedGenParticles*process.myGenerator*process.rivetProducerHTXS)
 
-def customizeForL1Prefiring(process, options):
-    print "You selected to apply L1 pre-firing. We will apply if it is an appropriate year (2016 or 2017)."
+
+#def customizeForL1Prefiring(process, options):
+#    print "You selected to apply L1 pre-firing. We will apply if it is an appropriate year (2016 or 2017)."
+def customizeForL1Prefiring(process, options, processId):
+    print "You selected to apply L1 pre-firing. We will apply if it is an appropriate year (2016 or 2017) and an appropriate sample (only MC, not data)"
     applyPrefireProbability = options["L1Prefiring"]["apply"]
+    if processId == "Data":
+            applyPrefireProbability = False
     for tagger in ["flashggTTHHadronicTag", "flashggTTHLeptonicTag"]:
         getattr(process, tagger).applyPrefireProbability = cms.bool(applyPrefireProbability)
 

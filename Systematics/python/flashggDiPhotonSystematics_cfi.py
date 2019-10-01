@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 flashggDiPhotonSystematics = cms.EDProducer('FlashggDiPhotonSystematicProducer',
                 src = cms.InputTag("flashggDifferentialPhoIdInputsCorrection"),
+#                src = cms.InputTag("flashggUpdatedIdMVADiPhotons"),
                 SystMethods2D = cms.VPSet(),
                 SystMethods = cms.VPSet()
 )
