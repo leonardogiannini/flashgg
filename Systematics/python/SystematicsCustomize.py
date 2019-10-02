@@ -341,7 +341,14 @@ def recalculatePDFWeights(process, options):
                                                         NNPDF30_lo_as_0130_nf_4 = cms.untracked.uint32(263400),
                                                         NNPDF31_nnlo_as_0118_nf_4 = cms.untracked.uint32(320900)
                                                     )
+<<<<<<< HEAD
                                                 )
     process.p.insert(0, process.flashggPDFWeightObject)
 
 
+=======
+                                                )
+    process.p.insert(0, process.flashggPDFWeightObject)
+
+
+>>>>>>> ca683a0... Add option for recalculating PDF weights on-the-fly (#1148)
