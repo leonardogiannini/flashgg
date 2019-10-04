@@ -610,8 +610,7 @@ if customize.tthTagsOnly:
                          process.flashggMetFilters*
                          process.genFilter*
                          process.flashggDiPhotons* # needed for 0th vertex from microAOD
-                         process.flashggUpdatedIdMVADiPhotons*
-                         #process.flashggDifferentialPhoIdInputsCorrection*
+                         process.flashggDifferentialPhoIdInputsCorrection*
                          process.flashggDiPhotonSystematics*
                          process.flashggMetSystematics*
                          process.flashggMuonSystematics*process.flashggElectronSystematics*
