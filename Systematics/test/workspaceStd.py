@@ -770,9 +770,9 @@ if customize.verboseSystDump:
 # call the customization
 customize(process)
 
-#if is_signal:
-#    remotefilename = (process.source.fileNames)[0]
-#    from subprocess import call
-#    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
-#    localfilename = remotefilename.split("/")[-1]
-#    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
+if is_signal:
+    remotefilename = (process.source.fileNames)[0]
+    from subprocess import call
+    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
+    localfilename = remotefilename.split("/")[-1]
+    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
