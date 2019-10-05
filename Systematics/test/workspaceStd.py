@@ -298,6 +298,12 @@ useEGMTools(process)
 signal_processes = ["ggh_","vbf_","wzh_","wh_","zh_","bbh_","thq_","thw_","tth_","HHTo2B2G","GluGluHToGG","VBFHToGG","VHToGG","ttHToGG","Acceptance"]
 is_signal = reduce(lambda y,z: y or z, map(lambda x: customize.processId.count(x), signal_processes))
 #if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("Acceptance") or customize.processId.count("hh_"):
+
+if customize.doL1Prefiring:
+    customizeForL1Prefiring(process, customize.metaConditions, customize.processId)
+else:
+    process.flashggTagSequence.remove(process.flashggPrefireWeight)
+
 if is_signal:
     print "Signal MC, so adding systematics and dZ"
     if customize.doHTXS:
@@ -312,17 +318,14 @@ if is_signal:
         variablesToUse.append("leadmva := diPhotonMVA().leadmva")
         variablesToUse.append("subleadmva := diPhotonMVA().subleadmva")
 
+    if customize.doL1Prefiring:
+        variablesToUse.append("prefireProbability := weight(\"prefireProbability\")")
+
     #if customize.doL1Prefiring:
     #    customizeForL1Prefiring(process, customize.metaConditions)
     #    variablesToUse.append("prefireProbability := weight(\"prefireProbability\")")
     #else:
     #    process.flashggTagSequence.remove(process.flashggPrefireWeight)
-
-    if customize.doL1Prefiring:
-        customizeForL1Prefiring(process, customize.metaConditions, customize.processId)
-    else:
-        process.flashggTagSequence.remove(process.flashggPrefireWeight)
-
 
     if customize.doSystematics:
         for direction in ["Up","Down"]:
