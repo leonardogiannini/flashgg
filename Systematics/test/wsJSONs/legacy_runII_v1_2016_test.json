@@ -1,0 +1,11 @@
+{
+  "processes": {
+    "Data": [
+      "/DoubleEG/spigazzi-Era2016_RR-17Jul2018_v2-legacyRun2FullV1-v0-Run2016C-17Jul2018-v1-86023db6be00ee64cd62a3172358fb9f/USER"
+    ], 
+    "tth_125": [
+      "/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_v2/spigazzi-Era2016_RR-17Jul2018_v2-legacyRun2FullV1-v0-RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1-4b15415e8d56c44d7f20bde93a158c60/USER"
+    ], 
+  },
+    "cmdLine"  : "campaign=Era2016_RR-17Jul2018_v2 metaConditions=$CMSSW_BASE/src/flashgg/MetaData/data/MetaConditions/Era2016_RR-17Jul2018_v1.json useAAA=True"
+}
