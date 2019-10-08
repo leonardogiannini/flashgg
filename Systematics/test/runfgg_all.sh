@@ -5,7 +5,7 @@ date=$1
 year=$2
 tag=$3
 
-outdir="preapproval_ws_"${year}"_"${date}"_"${tag}"_v2"
+outdir="preapproval_ws_"${year}"_"${date}"_"${tag}
 stageDir="/hadoop/cms/store/user/hmei/ttH/"${outdir}"/"
 intermediateTar="package_"${year}"_"${tag}".tar.gz"
 
