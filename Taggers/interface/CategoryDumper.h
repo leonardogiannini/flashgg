@@ -555,6 +555,7 @@ bool CategoryDumper<F, O>::isBinnedOnly( )
     if( dataset_ && (!binnedOnly_) ) {
         dynamic_cast<RooRealVar &>( rooVars_["weight"] ).setVal( weight_ );
     }
+    cout << "dumpPdfWeights_: " << ( dumpPdfWeights_ == 1) << endl;
     if (dumpPdfWeights_){
         if( tree_ ) {
             std::copy(pdfWeights.begin(),pdfWeights.end(),variables_pdfWeights_.begin());

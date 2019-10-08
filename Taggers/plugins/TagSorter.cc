@@ -116,7 +116,6 @@ namespace flashgg {
             }
             TagPriorityRanges.emplace_back( tag.label(), c1, c2, i );
         }
-
         ParameterSet HTXSps = iConfig.getParameterSet( "HTXSTags" );
         stage0catToken_ = consumes<int>( HTXSps.getParameter<InputTag>("stage0cat") );
         stage1catToken_ = consumes<int>( HTXSps.getParameter<InputTag>("stage1cat") );
@@ -350,6 +349,7 @@ namespace flashgg {
                 std::cout << "******************************" << std::endl;
             }
         }
+
         evt.put( std::move( SelectedTag ) );
         evt.put( std::move( SelectedTagTruth ) );
     }

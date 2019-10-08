@@ -261,7 +261,7 @@ namespace flashgg {
         systematicsLabels.push_back("");
         modifySystematicsWorkflow = iConfig.getParameter<bool> ( "ModifySystematicsWorkflow" );
 
-        useLargeMVAs = iConfig.getParameter<bool> ( "UseLargeMVAs" );
+        useLargeMVAs = false; //iConfig.getParameter<bool> ( "UseLargeMVAs" );
 
         // Get diphoton candidates corresponding to each systematic
         inputDiPhotonName_= iConfig.getParameter<std::string>( "DiPhotonName" );
@@ -1199,7 +1199,7 @@ namespace flashgg {
                   dnn_score_0_ = dnn_score_dipho;
                   dnn_score_1_ = dnn_score_ttGG;
 
-                  tthMvaVal_RunII_ = convert_tmva_to_prob(TThMva_RunII_->EvaluateMVA( _MVAMethod.c_str() ));
+                  tthMvaVal_RunII_ = 0;//convert_tmva_to_prob(TThMva_RunII_->EvaluateMVA( _MVAMethod.c_str() ));
                   if (debug_) {
                     cout << "TTH Hadronic Tag -- input MVA variables for Run II MVA: " << endl;
                     cout << "--------------------------------------------------------" << endl;
@@ -1251,8 +1251,11 @@ namespace flashgg {
 
                 tthMvaVal_ = tthMvaVal_RunII_; // use Run II MVA
 
-                bool isTTHHadronicTagged = false;
-                int catnum =-1;
+                bool isTTHHadronicTagged = true;
+                //bool isTTHHadronicTagged = false;
+                int catnum =0;
+                //int catnum =-1;
+                /*
                 if( !useTTHHadronicMVA_ && njets_btagloose_ >= bjetsLooseNumberThreshold_ && njets_btagmedium_ >= bjetsNumberThreshold_ && jetcount_ >= jetsNumberThreshold_ ) {
 
                     catnum=0;
@@ -1268,7 +1271,7 @@ namespace flashgg {
                         //                    cout<<" TAGGED "<< endl;
                     }
                 }
-                
+               */ 
                 if( isTTHHadronicTagged ) {
 
                     TTHHadronicTag tthhtags_obj( dipho, mvares, JetVect, BJetVect );
@@ -1289,7 +1292,7 @@ namespace flashgg {
                     tthhtags_obj.setSystLabel( syst_label ); 
                     tthhtags_obj.setMVAres(tthMvaVal_);
                     tthhtags_obj.setMET( theMET );
-
+                    /*
                     if(!useTTHHadronicMVA_){
                         for( unsigned num = 0; num < JetVect.size(); num++ ) {
                             tthhtags_obj.includeWeightsByLabel( *JetVect[num] , "JetBTagCutWeight");
@@ -1306,7 +1309,7 @@ namespace flashgg {
                         if (!evt.isRealData())
                             tthhtags_obj.setCentralWeight(tthhtags_obj.centralWeight() * (1. - *(prefireProb.product())) );
                     }
-
+                    */
                     tthhtags->push_back( tthhtags_obj );
                     if( ! evt.isRealData() ) {
                         TagTruthBase truth_obj;
