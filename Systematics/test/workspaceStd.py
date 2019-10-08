@@ -773,6 +773,11 @@ if customize.verboseSystDump:
 # call the customization
 customize(process)
 
+if "eoscms.cern.ch" in (process.source.fileNames)[0]:
+    oldname = (process.source.fileNames)[0]
+    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
+    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
+
 if is_signal:
     remotefilename = (process.source.fileNames)[0]
     from subprocess import call
