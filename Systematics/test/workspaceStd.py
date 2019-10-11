@@ -524,8 +524,8 @@ for tag in tagList:
       isBinnedOnly = (systlabel !=  "")
       if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
-          dumpPdfWeights = False
-          #dumpPdfWeights = True
+          #dumpPdfWeights = False
+          dumpPdfWeights = True
           nPdfWeights = 60
           nAlphaSWeights = 2
           nScaleWeights = 9
