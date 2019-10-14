@@ -199,6 +199,10 @@ class WorkNodeJob(object):
             #script += "scram b\n"
             #gfal-copy -p -f -t 4200 --verbose gsiftp://gftp.t2.ucsd.edu/hadoop/cms/store/user/smay/ttH/tarballs/package.tar.gz package.tar.gz
             #script += "env -i X509_USER_PROXY=${X509_USER_PROXY} gfal-copy -p -f -t 4200 --verbose gsiftp://gftp.t2.ucsd.edu/" + self.stage_dest + "package.tar.gz .\n"
+            script += "export http_proxy=http://cvmfs-1.t2.ucsd.edu:3128\n"
+            script += "export GLIDEIN_Proxy_URL=cvmfs-1.t2.ucsd.edu:3128\n"
+            script += "export OSG_SQUID_LOCATION=cvmfs-1.t2.ucsd.edu:3128\n"
+            #script += "wget http://gftp-2.t2.ucsd.edu:1094/" + (self.stage_dest.split("hadoop/cms"))[1] + "package.tar.gz .\n "
             script += "xrdcp root://redirector.t2.ucsd.edu//" + (self.stage_dest.split("hadoop/cms"))[1] + "package.tar.gz .\n"
             #env -i X509_USER_PROXY=${X509_USER_PROXY} gfal-copy -p -f -t 4200 --verbose
             #script += "env -i X509_USER_PROXY=${X509_USER_PROXY} gfal-copy -p -f -t 4200 --verbose gsiftp://gftp.t2.ucsd.edu/" + self.stage_dest + "package.tar.gz .\n"
@@ -453,8 +457,8 @@ class HTCondorJob(object):
             fout.write('log         = '+self.jobName+'_$(ClusterId).$(ProcId)_htc.log\n\n')
             fout.write('max_retries = 3\n')
             fout.write('request_cpus = 4\n')
-            fout.write('+DESIRED_Sites="T2_US_UCSD,T2_US_CALTECH,T2_US_MIT,T2_US_WISCONSIN,T2_US_Nebraska,T2_US_Purdue,T2_US_Vanderbilt,T2_US_Florida"\n')
-            #fout.write('+DESIRED_Sites="T2_US_UCSD"\n')
+            #fout.write('+DESIRED_Sites="T2_US_UCSD,T2_US_CALTECH,T2_US_MIT,T2_US_WISCONSIN,T2_US_Nebraska,T2_US_Purdue,T2_US_Vanderbilt,T2_US_Florida"\n')
+            fout.write('+DESIRED_Sites="T2_US_UCSD"\n')
             #fout.write('request_memory = 16GB\n')
             fout.write('queue '+str(njobs)+' \n')
             fout.close()
