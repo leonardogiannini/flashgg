@@ -1,5 +1,8 @@
 {
   "processes": {
+    "bbh_125": [
+      "/bbHToGG_M-125_4FS_yb2_TuneCP5-13TeV-amcatnlo-pythia8/spigazzi-Era2018_RR-17Sep2018_v2-legacyRun2FullV2-v0-RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1-db144f48e9d4babdfe9806c850922302/USER"
+    ], 
     "zh_120": [
       ["/VHToGG_M120_13TeV_amcatnloFXFX_madspin_pythia8/spigazzi-Era2018_RR-17Sep2018_v2-legacyRun2FullV2-v0-RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1-3eb297b5e03726c458ef117cc7e864e5/USER", { "args" :["outputFile=output_ZHToGG_M120_13TeV_Era2018_amcatnloFXFX_madspin_pythia8.root"]  }  ]
       ], 
