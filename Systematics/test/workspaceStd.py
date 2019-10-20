@@ -306,6 +306,8 @@ else:
 
 if is_signal:
     print "Signal MC, so adding systematics and dZ"
+    if dumpTrees:
+        variablesToUse.append("weight_PixelSeedWeight:=weight(\"PixelSeedWeightCentral\")")
     if customize.doHTXS:
         variablesToUse = minimalVariablesHTXS
     else:

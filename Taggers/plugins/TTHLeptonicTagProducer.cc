@@ -1500,7 +1500,6 @@ namespace flashgg {
                            tthltags->back().setLeadMomMomID(leadFlags[7]);
                            tthltags->back().setLeadSmallestDr(NearestDr(genParticles, &(*gp_lead)));
 
-                           cout << "leadPrompt: " << leadFlags[0] << endl;
                            } 
 
                        if (gp_sublead_index != -1) {
