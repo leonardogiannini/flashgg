@@ -21,9 +21,9 @@ cp $intermediateTar ${stageDir}"package.tar.gz"
 hadoop fs -setrep -R 30 ${stageDir2}"package.tar.gz"
 
 if [ "$tag" == "data" ]; then
-    fggRunJobs.py --load wsJSONs/legacy_runII_v1_${year}_${tag}.json -d ${outdir} workspaceStd.py -n 300 --no-copy-proxy -b htcondor --stage-to "gsiftp://gftp.t2.ucsd.edu"${stageDir} -q workday doHTXS=True tthTagsOnly=True 
+    fggRunJobs.py --load wsJSONs/legacy_runII_v1_${year}_${tag}.json -d ${outdir} workspaceStd.py -n 300 --no-copy-proxy -b htcondor --stage-to "gsiftp://gftp.t2.ucsd.edu"${stageDir} -q workday doHTXS=True tthTagsOnly=True useAAA=True
 else
-    fggRunJobs.py --load wsJSONs/legacy_runII_v1_${year}_${tag}.json -d ${outdir} workspaceStd.py -n 300 --no-copy-proxy -b htcondor --stage-to "gsiftp://gftp.t2.ucsd.edu"${stageDir} -q workday doHTXS=True tthTagsOnly=True doSystematics=True doL1Prefiring=True 
+    fggRunJobs.py --load wsJSONs/legacy_runII_v1_${year}_${tag}.json -d ${outdir} workspaceStd.py -n 300 --no-copy-proxy -b htcondor --stage-to "gsiftp://gftp.t2.ucsd.edu"${stageDir} -q workday doHTXS=True tthTagsOnly=True doSystematics=True doL1Prefiring=True  useAAA=True
     #fggRunJobs.py --load wsJSONs/legacy_runII_v1_${year}_${tag}.json -d ${outdir} workspaceStd.py -n 300 --no-copy-proxy -b htcondor --stage-to "gsiftp://gftp.t2.ucsd.edu"${stageDir} -q workday doHTXS=True tthTagsOnly=True doSystematics=True doL1Prefiring=True recalculatePDFWeights=True useParentDataset=True
 fi
 

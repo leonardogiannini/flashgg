@@ -306,12 +306,12 @@ else:
 
 if is_signal:
     print "Signal MC, so adding systematics and dZ"
-    if dumpTrees:
-        variablesToUse.append("weight_PixelSeedWeight:=weight(\"PixelSeedWeightCentral\")")
     if customize.doHTXS:
         variablesToUse = minimalVariablesHTXS
     else:
         variablesToUse = minimalVariables
+    if customize.dumpTrees:
+        variablesToUse.append("weight_PixelSeedWeight:=weight(\"PixelSeedWeightCentral\")")
     if customize.doFiducial:
         variablesToUse.extend(fc.getGenVariables(True))
         variablesToUse.extend(fc.getRecoVariables(True))
@@ -348,23 +348,23 @@ if is_signal:
             metsystlabels.append("metJerUncertainty%s01sigma" % direction)
             metsystlabels.append("metPhoUncertainty%s01sigma" % direction)
             metsystlabels.append("metUncUncertainty%s01sigma" % direction)
-            variablesToUse.append("UnmatchedPUWeight%s01sigma[1,-999999.,999999.] := weight(\"UnmatchedPUWeight%s01sigma\")" % (direction,direction))
-            variablesToUse.append("MvaLinearSyst%s01sigma[1,-999999.,999999.] := weight(\"MvaLinearSyst%s01sigma\")" % (direction,direction))
-            variablesToUse.append("LooseMvaSF%s01sigma[1,-999999.,999999.] := weight(\"LooseMvaSF%s01sigma\")" % (direction,direction))
-            variablesToUse.append("PreselSF%s01sigma[1,-999999.,999999.] := weight(\"PreselSF%s01sigma\")" % (direction,direction))
-            variablesToUse.append("electronVetoSF%s01sigma[1,-999999.,999999.] := weight(\"electronVetoSF%s01sigma\")" % (direction,direction))
-            variablesToUse.append("TriggerWeight%s01sigma[1,-999999.,999999.] := weight(\"TriggerWeight%s01sigma\")" % (direction,direction))
-            variablesToUse.append("FracRVWeight%s01sigma[1,-999999.,999999.] := weight(\"FracRVWeight%s01sigma\")" % (direction,direction))
-            variablesToUse.append("FracRVNvtxWeight%s01sigma[1,-999999.,999999.] := weight(\"FracRVNvtxWeight%s01sigma\")" % (direction,direction))
-            variablesToUse.append("ElectronWeight%s01sigma[1,-999999.,999999.] := weight(\"ElectronWeight%s01sigma\")" % (direction,direction))
-            if os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
-                variablesToUse.append("MuonWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonWeight%s01sigma\")" % (direction,direction))
-                variablesToUse.append("MuonMiniIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonMiniIsoWeight%s01sigma\")" % (direction,direction))
-            elif os.environ["CMSSW_VERSION"].count("CMSSW_9_4"):
-                variablesToUse.append("MuonIDWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sIDWeight%s01sigma\")" % (direction,MUON_ID,direction))
-                variablesToUse.append("MuonIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sISOWeight%s01sigma\")" % (direction,MUON_ISO,direction))
-            variablesToUse.append("JetBTagCutWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagCutWeight%s01sigma\")" % (direction,direction))
-            variablesToUse.append("JetBTagReshapeWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagReshapeWeight%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("UnmatchedPUWeight%s01sigma[1,-999999.,999999.] := weight(\"UnmatchedPUWeight%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("MvaLinearSyst%s01sigma[1,-999999.,999999.] := weight(\"MvaLinearSyst%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("LooseMvaSF%s01sigma[1,-999999.,999999.] := weight(\"LooseMvaSF%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("PreselSF%s01sigma[1,-999999.,999999.] := weight(\"PreselSF%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("electronVetoSF%s01sigma[1,-999999.,999999.] := weight(\"electronVetoSF%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("TriggerWeight%s01sigma[1,-999999.,999999.] := weight(\"TriggerWeight%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("FracRVWeight%s01sigma[1,-999999.,999999.] := weight(\"FracRVWeight%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("FracRVNvtxWeight%s01sigma[1,-999999.,999999.] := weight(\"FracRVNvtxWeight%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("ElectronWeight%s01sigma[1,-999999.,999999.] := weight(\"ElectronWeight%s01sigma\")" % (direction,direction))
+            #if os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
+            #    variablesToUse.append("MuonWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonWeight%s01sigma\")" % (direction,direction))
+            #    variablesToUse.append("MuonMiniIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonMiniIsoWeight%s01sigma\")" % (direction,direction))
+            #elif os.environ["CMSSW_VERSION"].count("CMSSW_9_4"):
+            #    variablesToUse.append("MuonIDWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sIDWeight%s01sigma\")" % (direction,MUON_ID,direction))
+            #    variablesToUse.append("MuonIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sISOWeight%s01sigma\")" % (direction,MUON_ISO,direction))
+            #variablesToUse.append("JetBTagCutWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagCutWeight%s01sigma\")" % (direction,direction))
+            #variablesToUse.append("JetBTagReshapeWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagReshapeWeight%s01sigma\")" % (direction,direction))
             for r9 in ["HighR9","LowR9"]:
                 for region in ["EB","EE"]:
                     phosystlabels.append("ShowerShape%s%s%s01sigma"%(r9,region,direction))
@@ -472,8 +472,8 @@ if customize.doFiducial:
     tagList=[["SigmaMpTTag",3]]
 elif customize.tthTagsOnly:
     tagList=[
-        ["TTHHadronicTag",4],
-        ["TTHLeptonicTag",4]
+        ["TTHHadronicTag",5],
+        ["TTHLeptonicTag",5]
         ]
 elif customize.doubleHTagsOnly:
     tagList = hhc.tagList
@@ -775,10 +775,10 @@ if customize.verboseSystDump:
 # call the customization
 customize(process)
 
-if "eoscms.cern.ch" in (process.source.fileNames)[0]:
-    oldname = (process.source.fileNames)[0]
-    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
-    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
+#if "eoscms.cern.ch" in (process.source.fileNames)[0]:
+#    oldname = (process.source.fileNames)[0]
+#    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
+#    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
 
 if is_signal:
     remotefilename = (process.source.fileNames)[0]
