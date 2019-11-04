@@ -306,8 +306,6 @@ else:
 
 if is_signal:
     print "Signal MC, so adding systematics and dZ"
-    if dumpTrees:
-        variablesToUse.append("weight_PixelSeedWeight:=weight(\"PixelSeedWeightCentral\")")
     if customize.doHTXS:
         variablesToUse = minimalVariablesHTXS
     else:
@@ -360,9 +358,12 @@ if is_signal:
             if os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
                 variablesToUse.append("MuonWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonWeight%s01sigma\")" % (direction,direction))
                 variablesToUse.append("MuonMiniIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonMiniIsoWeight%s01sigma\")" % (direction,direction))
-            elif os.environ["CMSSW_VERSION"].count("CMSSW_9_4"):
-                variablesToUse.append("MuonIDWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sIDWeight%s01sigma\")" % (direction,MUON_ID,direction))
-                variablesToUse.append("MuonIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sISOWeight%s01sigma\")" % (direction,MUON_ISO,direction))
+            #elif os.environ["CMSSW_VERSION"].count("CMSSW_9_4"):
+            elif os.environ["CMSSW_VERSION"].count("CMSSW_10_5") or os.environ["CMSSW_VERSION"].count("CMSSW_9_4"):
+                variablesToUse.append("MuonIDWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sIDWeight%s01sigma\")" % (direction,str(customize.metaConditions["MUON_ID"]),direction))
+                #variablesToUse.append("MuonIDWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sIDWeight%s01sigma\")" % (direction,MUON_ID,direction))
+                variablesToUse.append("MuonIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sISOWeight%s01sigma\")" % (direction,str(customize.metaConditions['MUON_ISO']),direction))
+                #variablesToUse.append("MuonIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sISOWeight%s01sigma\")" % (direction,MUON_ISO,direction))
             variablesToUse.append("JetBTagCutWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagCutWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("JetBTagReshapeWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagReshapeWeight%s01sigma\")" % (direction,direction))
             for r9 in ["HighR9","LowR9"]:
@@ -472,6 +473,7 @@ if customize.doFiducial:
     tagList=[["SigmaMpTTag",3]]
 elif customize.tthTagsOnly:
     tagList=[
+        ["NoTag",0],
         ["TTHHadronicTag",4],
         ["TTHLeptonicTag",4]
         ]
@@ -526,8 +528,8 @@ for tag in tagList:
       isBinnedOnly = (systlabel !=  "")
       if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
-          dumpPdfWeights = False
-          #dumpPdfWeights = True
+          #dumpPdfWeights = False
+          dumpPdfWeights = True
           nPdfWeights = 60
           nAlphaSWeights = 2
           nScaleWeights = 9
@@ -774,15 +776,17 @@ if customize.verboseSystDump:
 #print >> processDumpFile, process.dumpPython()
 # call the customization
 customize(process)
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-if "eoscms.cern.ch" in (process.source.fileNames)[0]:
-    oldname = (process.source.fileNames)[0]
-    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
-    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
+# this part may not be needed if using AAA in config
+#if "eoscms.cern.ch" in (process.source.fileNames)[0]:
+#    oldname = (process.source.fileNames)[0]
+#    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
+#    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
 
-if is_signal:
-    remotefilename = (process.source.fileNames)[0]
-    from subprocess import call
-    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
-    localfilename = remotefilename.split("/")[-1]
-    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
+#if is_signal:
+#    remotefilename = (process.source.fileNames)[0]
+#    from subprocess import call
+#    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
+#    localfilename = remotefilename.split("/")[-1]
+#    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
