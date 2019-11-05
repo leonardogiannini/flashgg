@@ -354,6 +354,7 @@ if is_signal:
             variablesToUse.append("FracRVWeight%s01sigma[1,-999999.,999999.] := weight(\"FracRVWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("FracRVNvtxWeight%s01sigma[1,-999999.,999999.] := weight(\"FracRVNvtxWeight%s01sigma\")" % (direction,direction))
             #variablesToUse.append("ElectronWeight%s01sigma[1,-999999.,999999.] := weight(\"ElectronWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("PixelSeedWeight%s01sigma[1,-999999.,999999.] := weight(\"PixelSeedWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("ElectronIDWeight%s01sigma[1,-999999.,999999.] := weight(\"ElectronIDWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("ElectronRecoWeight%s01sigma[1,-999999.,999999.] := weight(\"ElectronRecoWeight%s01sigma\")" % (direction,direction))
             if os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
@@ -529,8 +530,8 @@ for tag in tagList:
       isBinnedOnly = (systlabel !=  "")
       if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
-          #dumpPdfWeights = False
-          dumpPdfWeights = True
+          dumpPdfWeights = False
+          #dumpPdfWeights = True
           nPdfWeights = 60
           nAlphaSWeights = 2
           nScaleWeights = 9
@@ -785,9 +786,9 @@ customize(process)
 #    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
 #    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
 
-#if is_signal:
-#    remotefilename = (process.source.fileNames)[0]
-#    from subprocess import call
-#    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
-#    localfilename = remotefilename.split("/")[-1]
-#    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
+if is_signal:
+    remotefilename = (process.source.fileNames)[0]
+    from subprocess import call
+    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
+    localfilename = remotefilename.split("/")[-1]
+    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
