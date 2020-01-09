@@ -147,7 +147,7 @@ def cloneTagSequenceForEachSystematic(process,systlabels=[],phosystlabels=[],met
 # This function modifies the workflow so that systematic variations are evaluated in a single instance of the tagger, rather than individual instances for each variation
 def modifySystematicsWorkflowForttH(process, systlabels, phosystlabels, metsystlabels, jetsystlabels):
     # Set lists of systematics for each tag
-    for tag in ["flashggTTHLeptonicTag", "flashggTTHHadronicTag"]:
+    for tag in ["flashggTTHLeptonicTag", "flashggTTHHadronicTag", "flashggTHQLeptonicTag"]:
         getattr(process, tag).DiPhotonSuffixes = cms.vstring(phosystlabels)
         getattr(process, tag).JetsSuffixes = cms.vstring(jetsystlabels)
         getattr(process, tag).MetSuffixes = cms.vstring(metsystlabels)
@@ -157,17 +157,17 @@ def modifySystematicsWorkflowForttH(process, systlabels, phosystlabels, metsystl
 
     # Run cms.Sequence(process.flashggTTHLeptonicTag + process.flashggTTHHadronicTag) once at the beginning, put tag sorters for each systematic afterwards, and finally flashggSystTagMerger at the very end
     process.p.remove(process.flashggTagSorter)
-    process.p.replace(process.flashggSystTagMerger, cms.Sequence(process.flashggTTHLeptonicTag + process.flashggTTHHadronicTag)*process.flashggTagSorter*process.flashggSystTagMerger)
+    process.p.replace(process.flashggSystTagMerger, cms.Sequence(process.flashggTHQLeptonicTag + process.flashggTTHLeptonicTag + process.flashggTTHHadronicTag)*process.flashggTagSorter*process.flashggSystTagMerger)
 
     for systlabel in systlabels:
         if systlabel == "":
             continue
         process.p.remove(getattr(process, 'flashggTagSorter' + systlabel))
         process.p.replace(process.flashggSystTagMerger, getattr(process, 'flashggTagSorter' + systlabel) * process.flashggSystTagMerger)
-        setattr(getattr(process, 'flashggTagSorter'+systlabel), 'TagPriorityRanges', cms.VPSet( cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag', systlabel)), cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag', systlabel)) ))
+        setattr(getattr(process, 'flashggTagSorter'+systlabel), 'TagPriorityRanges', cms.VPSet( cms.PSet(TagName = cms.InputTag('flashggTHQLeptonicTag', systlabel)), cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag', systlabel)), cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag', systlabel)) ))
 
 def allowLargettHMVAs(process):
-    for tag in ["flashggTTHLeptonicTag", "flashggTTHHadronicTag"]:
+    for tag in ["flashggTTHLeptonicTag", "flashggTTHHadronicTag", "flashggTHQLeptonicTag"]:
         getattr(process, tag).UseLargeMVAs = cms.bool(True) # enable memory-intensive MVAs
 
 

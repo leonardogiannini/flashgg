@@ -266,6 +266,7 @@ if customize.doFiducial:
 
 if customize.tthTagsOnly:
     process.flashggTagSorter.TagPriorityRanges = cms.VPSet(
+        cms.PSet(TagName = cms.InputTag('flashggTHQLeptonicTag')),
         cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag')),
         cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag'))
     )
@@ -477,7 +478,8 @@ elif customize.tthTagsOnly:
     tagList=[
         ["NoTag",0],
         ["TTHHadronicTag",4],
-        ["TTHLeptonicTag",4]
+        ["TTHLeptonicTag",4],
+        ["THQLeptonicTag",1]
         ]
 elif customize.doubleHTagsOnly:
     tagList = hhc.tagList
