@@ -249,6 +249,7 @@ else:
     if not customize.doSystematics: # allow memory-intensive ttH MVAs if we are not running systematics
         allowLargettHMVAs(process)
 
+
 if customize.doDoubleHTag:
     import flashgg.Systematics.doubleHCustomize
     hhc = flashgg.Systematics.doubleHCustomize.DoubleHCustomize(process, customize, customize.metaConditions)
@@ -266,7 +267,7 @@ if customize.doFiducial:
 
 if customize.tthTagsOnly:
     process.flashggTagSorter.TagPriorityRanges = cms.VPSet(
-        cms.PSet(TagName = cms.InputTag('flashggTHQLeptonicTag')),
+#        cms.PSet(TagName = cms.InputTag('flashggTHQLeptonicTag')),
         cms.PSet(TagName = cms.InputTag('flashggTTHLeptonicTag')),
         cms.PSet(TagName = cms.InputTag('flashggTTHHadronicTag'))
     )
@@ -369,6 +370,7 @@ if is_signal:
                 #variablesToUse.append("MuonIsoWeight%s01sigma[1,-999999.,999999.] := weight(\"Muon%sISOWeight%s01sigma\")" % (direction,MUON_ISO,direction))
             variablesToUse.append("JetBTagCutWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagCutWeight%s01sigma\")" % (direction,direction))
             variablesToUse.append("JetBTagReshapeWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagReshapeWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("JetBTagReshapeWeightxCentral[1,-999999.,999999.] := weight(\"JetBTagReshapeWeightCentral\")")
             for r9 in ["HighR9","LowR9"]:
                 for region in ["EB","EE"]:
                     phosystlabels.append("ShowerShape%s%s%s01sigma"%(r9,region,direction))
@@ -456,7 +458,7 @@ if(customize.doFiducial):
 #    else:
     fc.addObservables(process, process.tagsDumper, customize.processId )
 
-if customize.processId == "tHq":
+if customize.processId == "thq":
     import flashgg.Taggers.THQLeptonicTagVariables as var
     variablesToUse = minimalVariables + var.vtx_variables + var.dipho_variables
 
@@ -479,7 +481,7 @@ elif customize.tthTagsOnly:
         ["NoTag",0],
         ["TTHHadronicTag",4],
         ["TTHLeptonicTag",4],
-        ["THQLeptonicTag",1]
+        ["THQLeptonicTag",0]
         ]
 elif customize.doubleHTagsOnly:
     tagList = hhc.tagList

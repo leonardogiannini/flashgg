@@ -24,7 +24,7 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-//#include "flashgg/DataFormats/interface/TagTruthBase.h"
+//include "flashgg/DataFormats/interface/TagTruthBase.h"
 #include "flashgg/DataFormats/interface/THQLeptonicTagTruth.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
@@ -34,7 +34,7 @@
 
 #include "flashgg/DataFormats/interface/PDFWeightObject.h"
 #include "flashgg/DataFormats/interface/likelihood_thq.h"
-
+#include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -95,7 +95,7 @@ public:
 
 private:
     std::string processId_;
-    edm::EDGetTokenT< LHEEventProduct > token_lhe;
+//    edm::EDGetTokenT< LHEEventProduct > token_lhe;
 //    int  chooseCategory( float, float);
     int  chooseCategory( float );
     void produce( Event &, const EventSetup & ) override;
@@ -143,6 +143,10 @@ private:
     edm::EDGetTokenT<vector<flashgg::PDFWeightObject> > weightToken_;
     EDGetTokenT<double> rhoTag_;
     string systLabel_;
+    EDGetTokenT<int> stage0catToken_, stage1catToken_, njetsToken_;
+    EDGetTokenT<HTXS::HiggsClassification> newHTXSToken_;
+    EDGetTokenT<float> pTHToken_,pTVToken_;
+
 
     typedef std::vector<edm::Handle<edm::View<flashgg::Jet> > > JetCollectionVector;
 
@@ -207,9 +211,7 @@ private:
     float n_jets_;
     float n_bjets_;
     float n_centraljets_;
-    float bJet1_pt_;
     float dEta_leptonfwdjet_;
-    float fwdJet1_eta_;
 
     float dRbjetfwdjet_ ;
     float dRtHchainfwdjet_ ;
@@ -221,15 +223,28 @@ private:
     float dRleptonfwdjet_ ;
     float bjet1_discr_;
     float bjet2_discr_;
+    float bjet1_pt_;
     float bjet2_pt_;
     float bjet1_eta_;
     float bjet2_eta_;
     float jet1_pt_;
     float jet2_pt_;
+    float jet3_pt_;
+    float jet4_pt_;
     float jet1_eta_;
     float jet2_eta_;
-
-
+    float jet3_eta_;
+    float jet4_eta_;
+    float jet1_discr_;
+    float jet2_discr_;
+    float jet3_discr_;
+    float jet4_discr_;
+    float fwdJet1_pt_;
+    float fwdJet1_eta_;
+    float fwdJet1_discr_;
+    float lepton_leadPt_;
+    float lepton_leadEta_;
+    bool debug_=false;
     struct GreaterByPt
     {
     public:
@@ -271,7 +286,7 @@ private:
     std::vector<edm::Ptr<flashgg::Jet> > SelJetVect_EtaSorted;
     std::vector<edm::Ptr<flashgg::Jet> > SelJetVect_PtSorted;
     std::vector<edm::Ptr<flashgg::Jet> > SelJetVect_BSorted;
-    std::vector<edm::Ptr<flashgg::Jet> > MediumBJetVect, MediumBJetVect_PtSorted, MediumBJetVect_;
+    std::vector<edm::Ptr<flashgg::Jet> > MediumBJetVect, MediumBJetVect_PtSorted, BJetVect;
     std::vector<edm::Ptr<flashgg::Jet> > LooseBJetVect, LooseBJetVect_PtSorted ;
     std::vector<edm::Ptr<flashgg::Jet> > TightBJetVect, TightBJetVect_PtSorted;
     std::vector<edm::Ptr<flashgg::Jet> > centraljet;
@@ -364,10 +379,10 @@ THQLeptonicTagProducer::THQLeptonicTagProducer( const ParameterSet &iConfig ) :
     MVAMethod_    ( iConfig.getParameter<string> ( "MVAMethod"    ) )
 {
 
-    if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos) {
+/*ps    if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos) {
         token_lhe = consumes<LHEEventProduct>( InputTag( "externalLHEProducer" )  );
     }
-
+*/
     double default_Zmass_ = 91.9;
     double default_deltaMassElectronZThreshold_ = 5.;
 
@@ -407,6 +422,13 @@ THQLeptonicTagProducer::THQLeptonicTagProducer( const ParameterSet &iConfig ) :
     thqLeptonicMVAweightfile_ = iConfig.getParameter<edm::FileInPath>( "thqleptonicMVAweightfile" );
     likelihood_input_ = iConfig.getParameter<edm::FileInPath>( "likelihood_input" );
     boundaries = iConfig.getParameter<vector<double > >( "Boundaries" );
+    ParameterSet HTXSps = iConfig.getParameterSet( "HTXSTags" );
+    stage0catToken_ = consumes<int>( HTXSps.getParameter<InputTag>("stage0cat") );
+    stage1catToken_ = consumes<int>( HTXSps.getParameter<InputTag>("stage1cat") );
+    njetsToken_ = consumes<int>( HTXSps.getParameter<InputTag>("njets") );
+    pTHToken_ = consumes<float>( HTXSps.getParameter<InputTag>("pTH") );
+    pTVToken_ = consumes<float>( HTXSps.getParameter<InputTag>("pTV") );
+    newHTXSToken_ = consumes<HTXS::HiggsClassification>( HTXSps.getParameter<InputTag>("ClassificationObj") );   
 
           thqLeptonicMva_.reset( new TMVA::Reader( "!Color:Silent" ) );
 
@@ -415,7 +437,7 @@ THQLeptonicTagProducer::THQLeptonicTagProducer( const ParameterSet &iConfig ) :
           thqLeptonicMva_->AddVariable( "n_bjets",               &n_bjets_ );  
           thqLeptonicMva_->AddVariable( "n_centraljets",         &n_centraljets_);
 	  thqLeptonicMva_->AddVariable( "lepton_charge",         &lepton_ch_);
-          thqLeptonicMva_->AddVariable( "bjet1_pt",              &bJet1_pt_);
+          thqLeptonicMva_->AddVariable( "bjet1_pt",              &bjet1_pt_);
 	  thqLeptonicMva_->AddVariable( "fwdjet1_eta",           &fwdJet1_eta_  );
 	  thqLeptonicMva_->AddVariable( "top_mt",                 &top_mt11_  );
           thqLeptonicMva_->AddVariable( "dr_tHchainfwdjet",       &dRtHchainfwdjet_  );
@@ -471,6 +493,17 @@ int THQLeptonicTagProducer::chooseCategory( float mvavalue )
 void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
 
 {
+    Handle<int> stage0cat, stage1cat, njets;
+    Handle<float> pTH, pTV;
+    evt.getByToken(stage0catToken_, stage0cat);
+    evt.getByToken(stage1catToken_,stage1cat);
+    evt.getByToken(njetsToken_,njets);
+    evt.getByToken(pTHToken_,pTH);
+    evt.getByToken(pTVToken_,pTV);
+
+    Handle<HTXS::HiggsClassification> htxsClassification;
+    evt.getByToken(newHTXSToken_,htxsClassification);
+
     JetCollectionVector Jets( inputTagJets_.size() );
     for( size_t j = 0; j < inputTagJets_.size(); ++j ) {
         evt.getByToken( tokenJets_[j], Jets[j] );
@@ -506,14 +539,14 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
     std::unique_ptr<vector<THQLeptonicTagTruth> > truths( new vector<THQLeptonicTagTruth> );
     Point higgsVtx;
 
-    edm::Handle<LHEEventProduct> product_lhe;
+/*ps    edm::Handle<LHEEventProduct> product_lhe;
     vector< double > CtCvWeights ;
     if( processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos ) {
         evt.getByToken(token_lhe, product_lhe);
         for (uint i = 446 ; i < product_lhe->weights().size() ; i++)
             CtCvWeights.push_back(product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
     }
-
+*/
 
     edm::RefProd<vector<THQLeptonicTagTruth> > rTagTruth = evt.getRefBeforePut<vector<THQLeptonicTagTruth> >();
     unsigned int idx = 0;
@@ -562,10 +595,10 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
         // 	CTCVWeightedVariables["diPhotonEta"]->Fill( abs( dipho->eta() ) , CtCvWeights );
         // }
 
-        if( mvares->result < MVAThreshold_ ) {
+/*        if( mvares->result < MVAThreshold_ ) {            //DiPho_MVA
             continue;
         }
-
+*/
         photonSelection = true;
 
 
@@ -736,7 +769,6 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
         if((goodElectrons.size() + goodMuons.size()) < 1) {
             continue;
         }
-
         hasGoodElec = ( goodElectrons.size() == 1 );
         hasVetoElec = ( vetoElectrons.size() > 0 );
         hasGoodMuons = ( goodMuons.size() == 1 );
@@ -787,6 +819,51 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
 
         }//end of electron loop
 
+//--------------------------------------------------------------------------------------------------
+                int leadMuIndex = 0;
+                float leadMuPt = -1;
+                int leadEleIndex = 0;
+                float leadElePt = -1;
+
+                for( unsigned int muonIndex = 0; muonIndex < goodMuons.size(); muonIndex++ )
+                {
+                    Ptr<flashgg::Muon> muon = goodMuons[muonIndex];
+
+                    if(muon->pt()>leadMuPt)
+                    {
+                        leadMuPt = muon->pt();
+                        leadMuIndex = muonIndex;
+                    }
+                }
+
+                for( unsigned int eleIndex = 0; eleIndex < goodElectrons.size(); eleIndex++ )
+                {
+                    Ptr<flashgg::Electron> ele = goodElectrons[eleIndex];
+
+                    if(ele->pt()>leadElePt)
+                    {
+                        leadElePt = ele->pt();
+                        leadEleIndex = eleIndex;
+                    }
+                }
+
+                if(leadMuPt>=leadElePt)
+                {
+                    lepton_leadPt_ = goodMuons[leadMuIndex]->pt();
+                    lepton_leadEta_ = goodMuons[leadMuIndex]->eta();
+                    lepton_ch_ = goodMuons[leadMuIndex]->charge();
+                }
+                else
+                {
+                    lepton_leadPt_ = goodElectrons[leadEleIndex]->pt();
+                    lepton_leadEta_ = goodElectrons[leadEleIndex]->eta();
+                    lepton_ch_ = goodElectrons[leadEleIndex]->charge();
+                }
+
+// cout<<"lepton_leadPt_"<<lepton_leadPt_<<endl;
+// cout<<"lepton_leadEta_"<<lepton_leadEta_<<endl;
+// cout<<"lepton_ch_"<<lepton_ch_<<endl;
+//--------------------------------------------------------------------------------------------------
         // if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos){
         // 	CTCVWeightedVariables["LeptonPt"]->Fill( lepton.pt , CtCvWeights );
         // 	CTCVWeightedVariables["LeptonEta"]->Fill( abs(lepton.eta) , CtCvWeights );
@@ -799,8 +876,9 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
         int njets_btagloose_ = 0;
         int njets_btagmedium_ = 0;
         int njets_btagtight_ = 0;
-	std::vector<float> bTag_value;
-
+	std::vector<float> bDiscr_bjets;
+    std::vector<float> bDiscr_jets;
+    std::vector<float> bDiscr_fwdjets;
         for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) {
             edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( candIndex_outer );
             std::vector <float> minDrLepton_ele;
@@ -885,7 +963,7 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
                 njets_btagloose_++;
             }
             if( bDiscriminatorValue > bDiscriminator_[1] ) {
-                MediumBJetVect_.push_back( thejet );
+                MediumBJetVect.push_back( thejet );
                 MediumBJetVect_PtSorted.push_back( thejet );
                 njets_btagmedium_++;
             }
@@ -919,48 +997,59 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
         std::sort(SelJetVect_EtaSorted.begin(),SelJetVect_EtaSorted.end(),GreaterByEta());
         std::sort(SelJetVect_PtSorted.begin(),SelJetVect_PtSorted.end(),GreaterByPt());
 
-	for(unsigned int bjetsindex = 0 ; bjetsindex < MediumBJetVect_.size(); bjetsindex++){
-	if(MediumBJetVect_[bjetsindex] !=  SelJetVect_EtaSorted[0] ){
-	MediumBJetVect.push_back( MediumBJetVect_[bjetsindex] );
-	bTag_value.push_back( MediumBJetVect_[bjetsindex]->bDiscriminator("pfDeepCSVJetTags:probb") + MediumBJetVect_[bjetsindex]->bDiscriminator("pfDeepCSVJetTags:probbb") );
+	for(unsigned int bjetsindex = 0 ; bjetsindex < LooseBJetVect.size(); bjetsindex++){
+	if(LooseBJetVect[bjetsindex] !=  SelJetVect_EtaSorted[0] ){
+	BJetVect.push_back( LooseBJetVect[bjetsindex] );
+	bDiscr_bjets.push_back( LooseBJetVect[bjetsindex]->bDiscriminator("pfDeepCSVJetTags:probb") + LooseBJetVect[bjetsindex]->bDiscriminator("pfDeepCSVJetTags:probbb") );
 	}
 	}
-	MediumBJetVect_.clear();
-	std::sort(MediumBJetVect.begin(),MediumBJetVect.end(), GreaterByBTagging("pfDeepCSVJetTags:probb", "pfDeepCSVJetTags:probbb"));
-	std::sort(bTag_value.begin(), bTag_value.end(), std::greater<float>());
+	LooseBJetVect.clear();
+	std::sort(BJetVect.begin(),BJetVect.end(), GreaterByBTagging("pfDeepCSVJetTags:probb", "pfDeepCSVJetTags:probbb"));
+	std::sort(bDiscr_bjets.begin(), bDiscr_bjets.end(), std::greater<float>());
 
-        if(SelJetVect.size() < jetsNumberThreshold_ || MediumBJetVect.size() < bjetsNumberThreshold_){
+        if(SelJetVect.size() < jetsNumberThreshold_ || BJetVect.size() < bjetsNumberThreshold_){
          SelJetVect.clear();
          SelJetVect_EtaSorted.clear(); SelJetVect_PtSorted.clear(); SelJetVect_BSorted.clear();
          LooseBJetVect.clear(); LooseBJetVect_PtSorted.clear();
-         MediumBJetVect.clear(); MediumBJetVect_PtSorted.clear(); MediumBJetVect_.clear(); 
+         MediumBJetVect.clear(); MediumBJetVect_PtSorted.clear(); BJetVect.clear(); 
          TightBJetVect.clear(); TightBJetVect_PtSorted.clear();
          centraljet.clear(); forwardjet.clear();
          continue; }	
+    float bjet1_discr_=-999;
+    float bjet2_discr_=-999;
+    float bjet1_pt_=-999;
+    float bjet2_pt_=-999;
+    float bjet1_eta_=-999;
+    float bjet2_eta_=-999;
+    float jet1_pt_=-999;
+    float jet2_pt_=-999;
+    float jet3_pt_=-999;
+    float jet4_pt_=-999;
+    float jet1_eta_=-999;
+    float jet2_eta_=-999;
+    float jet3_eta_=-999;
+    float jet4_eta_=-999;
+    float jet1_discr_=-999;
+    float jet2_discr_=-999;
+    float jet3_discr_=-999;
+    float jet4_discr_=-999;
+    float fwdJet1_pt_=-999;
+    float fwdJet1_eta_=-999;
+    float fwdJet1_discr_=-999;
+
+
 //------------------------------------Likelihood and MVA-----------------------------------------
 //---------------------------------------------------------------------------------------
 //        LikelihoodClass *likelihood_tHq = new LikelihoodClass();
         std::vector<double> vec_lhood_calc;
 
         fwdJet1 = SelJetVect_EtaSorted[0];
-        bJet1 = MediumBJetVect[0];
+        bJet1 = BJetVect[0];
         l1.SetPtEtaPhiE(0., 0., 0., 0.);
         b1.SetPtEtaPhiE(0., 0., 0., 0.);
         l1b1.SetPtEtaPhiE(0., 0., 0., 0.);
         l1b1met.SetPtEtaPhiE(0., 0., 0., 0.);
         double qdelR_leadphofwdjet1, qdelR_subleadphofwdjet1;
-	if(goodMuons.size() > 0){
-        muon1 = goodMuons[0];
-        l1.SetPtEtaPhiE(muon1->pt(), muon1->eta(), muon1->phi(), muon1->energy());
-	lepton_ch_ = muon1->charge();
-	 
-	}
-	else
-	{
-	ele1 = goodElectrons[0]; 
-	l1.SetPtEtaPhiE(ele1->pt(), ele1->eta(), ele1->phi(), ele1->energy());
-	lepton_ch_ = ele1->charge();
-	}
 
         b1.SetPtEtaPhiE(bJet1->pt(), bJet1->eta(), bJet1->phi(), bJet1->energy());
 
@@ -973,40 +1062,54 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
         qdelR_subleadphofwdjet1 = deltaR( fwdJet1->eta(), fwdJet1->phi(), dipho->subLeadingPhoton()->eta(), dipho->subLeadingPhoton()->phi() ) ;
 	dipho_pt_ = dipho->pt(); 
 	n_jets_ = SelJetVect.size();
-	n_bjets_ = MediumBJetVect.size();
+	n_bjets_ = BJetVect.size();
 	n_centraljets_ = centraljet.size();	
-        bJet1_pt_ = bJet1->pt();
+        bjet1_pt_ = bJet1->pt();
 	bjet1_eta_ = bJet1->eta();
 	dEta_leptonfwdjet_ = std::abs(l1.Eta()-fwdJet1->eta());
 	fwdJet1_eta_ = fwdJet1->eta();
-	bjet1_discr_ = bTag_value.at(0);
+	bjet1_discr_ = bDiscr_bjets.at(0);
 
-	if(SelJetVect.size()==1){
-	jet1_pt_ = SelJetVect[0]->pt();
+	if(SelJetVect.size()>0){
+	    jet1_pt_ = SelJetVect[0]->pt();
         jet1_eta_ = SelJetVect[0]->eta();
-	jet2_pt_ = -999;
-	jet2_eta_ = -999;
+        jet1_discr_= SelJetVect[0]->bDiscriminator("pfDeepCSVJetTags:probb") + SelJetVect[0]->bDiscriminator("pfDeepCSVJetTags:probbb");
 	}
-	else {
-	jet1_pt_ = SelJetVect[0]->pt();
-        jet1_eta_ = SelJetVect[0]->eta();
-	jet2_pt_ =SelJetVect[1]->pt();
-	jet2_eta_ =SelJetVect[1]->eta();
-	}
-	
-	if(MediumBJetVect.size()==1){
-	bjet1_discr_ = bTag_value.at(0);
-        bjet2_discr_ = -999;
-	bjet2_pt_ = -999;
-        bjet2_eta_ = -999;
-        }
-        else {
-	bjet1_discr_ = bTag_value.at(0);
-	bjet2_discr_ = bTag_value.at(1);
-        bjet2_pt_ =SelJetVect[1]->pt();
-        bjet2_eta_ =SelJetVect[1]->eta();
-        }
-
+    if(SelJetVect.size()>1){
+        jet2_pt_ = SelJetVect[1]->pt();
+        jet2_eta_ = SelJetVect[1]->eta();
+        jet2_discr_= SelJetVect[1]->bDiscriminator("pfDeepCSVJetTags:probb") + SelJetVect[1]->bDiscriminator("pfDeepCSVJetTags:probbb");
+    }
+    if(SelJetVect.size()>2){
+        jet3_pt_ = SelJetVect[2]->pt();
+        jet3_eta_ = SelJetVect[2]->eta();
+        jet3_discr_= SelJetVect[2]->bDiscriminator("pfDeepCSVJetTags:probb") + SelJetVect[2]->bDiscriminator("pfDeepCSVJetTags:probbb");
+    }
+    if(SelJetVect.size()>3){
+        jet4_pt_ = SelJetVect[3]->pt();
+        jet4_eta_ = SelJetVect[3]->eta();
+        jet4_discr_= SelJetVect[3]->bDiscriminator("pfDeepCSVJetTags:probb") + SelJetVect[3]->bDiscriminator("pfDeepCSVJetTags:probbb");
+    }
+    if(BJetVect.size()>0){
+        bjet1_pt_ = BJetVect[0]->pt();
+        bjet1_eta_ = BJetVect[0]->eta();
+        bjet1_discr_= BJetVect[0]->bDiscriminator("pfDeepCSVJetTags:probb") + BJetVect[0]->bDiscriminator("pfDeepCSVJetTags:probbb");
+    }
+    if(BJetVect.size()>1){
+        bjet2_pt_ = BJetVect[1]->pt();
+        bjet2_eta_ = BJetVect[1]->eta();
+        bjet2_discr_= BJetVect[1]->bDiscriminator("pfDeepCSVJetTags:probb") + BJetVect[1]->bDiscriminator("pfDeepCSVJetTags:probbb");
+    }
+    if(SelJetVect_EtaSorted.size()>0){
+        fwdJet1_pt_ = SelJetVect_EtaSorted[0]->pt();
+        fwdJet1_eta_ = SelJetVect_EtaSorted[0]->eta();
+        fwdJet1_discr_= SelJetVect_EtaSorted[0]->bDiscriminator("pfDeepCSVJetTags:probb") + SelJetVect_EtaSorted[0]->bDiscriminator("pfDeepCSVJetTags:probbb");
+    }
+    bDiscr_jets.push_back(jet1_discr_);
+    bDiscr_jets.push_back(jet2_discr_);
+    bDiscr_jets.push_back(jet3_discr_);
+    bDiscr_jets.push_back(jet4_discr_);
+    bDiscr_fwdjets.push_back(fwdJet1_discr_ );
 
         dRbjetfwdjet_ = deltaR( b1.Eta() , b1.Phi() , fwdJet1->eta() , fwdJet1->phi() );
         dRtHchainfwdjet_ = deltaR( tHchain.Eta() , tHchain.Phi() , fwdJL.Eta() , fwdJL.Phi() );
@@ -1024,7 +1127,7 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
         vec_lhood_calc.push_back( dEta_leptonfwdjet_ );
         vec_lhood_calc.push_back( qdelR_leadphofwdjet1 );
         vec_lhood_calc.push_back( qdelR_subleadphofwdjet1 );
-        vec_lhood_calc.push_back( bJet1_pt_);
+        vec_lhood_calc.push_back( bjet1_pt_);
         vec_lhood_calc.push_back( top_mt11_ );
         vec_lhood_calc.push_back( dipho_pt_ );
         vec_lhood_calc.push_back( n_bjets_  );
@@ -1045,26 +1148,48 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
          SelJetVect.clear();
          SelJetVect_EtaSorted.clear(); SelJetVect_PtSorted.clear(); SelJetVect_BSorted.clear();
          LooseBJetVect.clear(); LooseBJetVect_PtSorted.clear();
-         MediumBJetVect.clear(); MediumBJetVect_PtSorted.clear();
+         BJetVect.clear(); MediumBJetVect_PtSorted.clear();
          TightBJetVect.clear(); TightBJetVect_PtSorted.clear();
          centraljet.clear(); forwardjet.clear();
          continue; }
 */
 //Tagger with BDT
-	 if( thqLeptonicMvaResult_value_ < MVAThreshold_thq_){
+/*	 if( thqLeptonicMvaResult_value_ < MVAThreshold_thq_){
          SelJetVect.clear();
          SelJetVect_EtaSorted.clear(); SelJetVect_PtSorted.clear(); SelJetVect_BSorted.clear();
          LooseBJetVect.clear(); LooseBJetVect_PtSorted.clear();
-         MediumBJetVect.clear(); MediumBJetVect_PtSorted.clear();
+         BJetVect.clear(); MediumBJetVect_PtSorted.clear();
          TightBJetVect.clear(); TightBJetVect_PtSorted.clear();
          centraljet.clear(); forwardjet.clear();
          continue; }
-
+*/
 //int catnum = -1;
 //catnum = chooseCategory( thqLeptonicMvaResult_value_ );
 //catnum = chooseCategory( mvares->result );
 //catnum = chooseCategory( idmva1, idmva2 );
 //---------------------------------------------------------------------------------------
+     if(debug_){
+     cout<<"jet1_eta_"<<jet1_eta_<<endl;
+     cout<<"jet2_eta_"<<jet2_eta_<<endl;
+     cout<<"jet3_eta_"<<jet3_eta_<<endl;
+     cout<<"jet4_eta_"<<jet4_eta_<<endl;
+     cout<<"jet1_pt_"<<jet1_pt_<<endl;
+     cout<<"jet2_pt_"<<jet2_pt_<<endl;
+     cout<<"jet3_pt_"<<jet3_pt_<<endl;
+     cout<<"jet4_pt_"<<jet4_pt_<<endl;
+     cout<<"jet1_discr_"<<jet1_discr_<<endl;
+     cout<<"jet2_discr_"<<jet2_discr_<<endl;
+     cout<<"jet3_discr_"<<jet3_discr_<<endl;
+     cout<<"jet4_discr_"<<jet4_discr_<<endl;
+     cout<<"bjet1_pt_"<<bjet1_pt_<<endl;
+     cout<<"bjet2_pt_"<<bjet2_pt_<<endl;
+     cout<<"bjet1_eta_"<<bjet1_eta_<<endl;
+     cout<<"bjet2_eta_"<<bjet2_eta_<<endl;
+     cout<<"bjet1_discr_"<<bjet1_discr_<<endl;
+     cout<<"bjet2_discr_"<<bjet2_discr_<<endl;
+     cout<<"fwdJet1_pt_= "<<fwdJet1_pt_<<endl;
+     cout<<"fwdJet1_discr_= "<<fwdJet1_discr_<<endl;
+        }
 //---------------------------------------------------------------------------------------
             thqltags_obj.setHT(ht);
             // if( processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos ){
@@ -1091,7 +1216,7 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
 
                 thqltags_obj.photonWeights = dipho->leadingPhoton()->centralWeight()*dipho->subLeadingPhoton()->centralWeight() ;
                 thqltags_obj.setJets( SelJetVect_PtSorted , SelJetVect_EtaSorted);
-                thqltags_obj.setBJets( MediumBJetVect );
+                thqltags_obj.setBJets( BJetVect );
                 thqltags_obj.nCentralJets = centraljet.size();
                 thqltags_obj.nForwardJets = forwardjet.size();
                 thqltags_obj.setcentraljet( centraljet );
@@ -1108,15 +1233,16 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
 		thqltags_obj.settop_mt(top_mt11_);
 		thqltags_obj.settop_mass(topMass);
 		thqltags_obj.setlepton_ch(lepton_ch_);
+        thqltags_obj.setlepton_leadPt(lepton_leadPt_);
+        thqltags_obj.setlepton_leadEta(lepton_leadEta_);
                 thqltags_obj.setmvaresult ( mvares->result ) ;     //diphoton mva
 		thqltags_obj.setthq_mvaresult ( thqLeptonicMvaResult_value_ );
         	thqltags_obj.setlikelihood ( lhood_value ) ;
-		thqltags_obj.setbDiscriminatorValue( bTag_value );
+		thqltags_obj.setbDiscriminatorValue( bDiscr_bjets, bDiscr_jets, bDiscr_fwdjets );
 //		thqltags_obj.setCategoryNumber( catnum );
                 thqltags_obj.bTagWeight = 1.0;
                 thqltags_obj.bTagWeightDown = 1.0;
                 thqltags_obj.bTagWeightUp = 1.0;
-
                 for( auto j : SelJetVect_PtSorted ) {
                     thqltags_obj.includeWeights( *j );
 
@@ -1197,15 +1323,13 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
 
                 thqltags_obj.setFoxAndAplanarity( foxwolf1.another , eventshapes.pt );
                 thqltags_obj.setMETPtEtaPhiE( "SolvedMET", metW_check.Pt(), metW_check.Eta(), metW_check.Phi(), metW_check.E() );
-                topReco( &MediumBJetVect );
+                topReco( &BJetVect );
                 thqltags_obj.nMedium_bJets = MediumBJetVect.size();
                 	thqltags_obj.nLoose_bJets = LooseBJetVect_PtSorted.size();
                 	thqltags_obj.nTight_bJets = TightBJetVect_PtSorted.size();
-                
 
                 if( ! evt.isRealData() ) {
-
-                    if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos) {
+/*                    if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos) {
                         //8 QCD scale weights
                         for( uint i = 1 ; i < 9 ; i ++ )
                             thqltags_obj.setScale(i-1,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
@@ -1224,7 +1348,7 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
                         //temporary solution till ctcv issue on PDFWeightObject is solved :(
                         Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
                         evt.getByToken( weightToken_, WeightHandle );
-
+cout<<"(*WeightHandle).size()"<<(*WeightHandle).size()<<endl;
                         for( unsigned int weight_index = 0; weight_index < (*WeightHandle).size(); weight_index++ ) {
                             vector<uint16_t> compressed_weights = (*WeightHandle)[weight_index].pdf_weight_container;
                             std::vector<float> uncompressed = (*WeightHandle)[weight_index].uncompress( compressed_weights );
@@ -1239,21 +1363,24 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
                             //   //std::cout << "size !! "<< uncompressed.size() << " "<< uncompressed_alpha.size() << " "<<uncompressed_scale.size()<<" " << uncompressed_nloweights.size() << " "  <<uncompressed_ctcvweights.size() << std::endl;
                             float central_w = uncompressed_scale[0];
 
-
                             for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size(); j++ ) {
                                 thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
                             }
+cout<<"[DEBUG]0 I am here"<<endl;
                             //   // for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
                             //   //   thqltags_obj.setCtCv(j,uncompressed_ctcvweights[j]/ central_w );
                             //   // }
                             if (uncompressed_alpha.size()>1)
                             {
+cout<<"[DEBUG]1 I am here"<<endl;
                                 thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
                                 thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
                             }
                             else
+cout<<"[DEBUG]2 I am here"<<endl;
+cout<<"uncompressed_alpha[0]=  "<<uncompressed_alpha[0]<<"    "<<"central_w=  "<<central_w<<endl;
                                 thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
-
+cout<<"[DEBUG]3 I am here"<<endl;
                             for( uint i = 1 ; i < 9 ; i ++ )
                                 thqltags_obj.setScale(i-1,uncompressed_scale[i]/central_w );
 
@@ -1261,13 +1388,12 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
                                 thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
                         }
                     }//end of reading PDF weights from PDFWeightObject
-
+*/
                     evt.getByToken( genParticleToken_, genParticles );
                     evt.getByToken( genJetToken_, genJets );
 
                     THQLeptonicTagTruth truth_obj;
                     truth_obj.setDiPhoton ( dipho );
-
                     for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
                         int pdgid = genParticles->ptrAt( genLoop )->pdgId();
                         if( pdgid == 25 || pdgid == 22 ) {
@@ -1277,6 +1403,22 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
                     }
 
                     truth_obj.setGenPV( higgsVtx );
+
+                    if ( stage0cat.isValid() ) {
+                        truth_obj.setHTXSInfo( *( stage0cat.product() ),
+                                                *( stage1cat.product() ),
+                                                *( njets.product() ),
+                                                *( pTH.product() ),
+                                                *( pTV.product() ) );
+                    } else if ( htxsClassification.isValid() ) {
+                        truth_obj.setHTXSInfo( htxsClassification->stage0_cat,
+                                                htxsClassification->stage1_cat_pTjet30GeV,
+                                                htxsClassification->jets30.size(),
+                                                htxsClassification->p4decay_higgs.pt(),
+                                                htxsClassification->p4decay_V.pt() );
+                    } else {
+                        truth_obj.setHTXSInfo( 0, 0, 0, 0., 0. );
+                    }
 
                     // --------
                     //gen met
@@ -1659,7 +1801,7 @@ void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
             LooseBJetVect.clear();
             LooseBJetVect_PtSorted.clear();
             MediumBJetVect.clear();
-	    MediumBJetVect_.clear();
+	        BJetVect.clear();
             MediumBJetVect_PtSorted.clear();
             TightBJetVect.clear();
             TightBJetVect_PtSorted.clear();
