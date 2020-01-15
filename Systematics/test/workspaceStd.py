@@ -309,6 +309,7 @@ if is_signal:
         variablesToUse = minimalVariablesHTXS
     else:
         variablesToUse = minimalVariables
+    variablesToUse.append("weight_JetBTagWeight:=weight(\"JetBTagReshapeWeightCentral\")")
     if customize.doFiducial:
         variablesToUse.extend(fc.getGenVariables(True))
         variablesToUse.extend(fc.getRecoVariables(True))
