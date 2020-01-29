@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 import FWCore.ParameterSet.VarParsing as VarParsing
-from flashgg.Systematics.SystematicDumperDefaultVariables import minimalVariables,minimalHistograms,minimalNonSignalVariables,systematicVariables
+from flashgg.Systematics.SystematicDumperDefaultVariables import minimalVariables,minimalHistograms,minimalNonSignalVariables,systematicVariables,dipho_variables,tthvariables_had,tthvariables_lep
 from flashgg.Systematics.SystematicDumperDefaultVariables import minimalVariablesHTXS,systematicVariablesHTXS
 import os
 from flashgg.MetaData.MetaConditionsReader import *
@@ -477,8 +477,8 @@ if customize.doFiducial:
 elif customize.tthTagsOnly:
     tagList=[
         ["NoTag",0],
-        ["TTHHadronicTag",4],
-        ["TTHLeptonicTag",4]
+        ["TTHHadronicTag",0],
+        ["TTHLeptonicTag",0]
         ]
 elif customize.doubleHTagsOnly:
     tagList = hhc.tagList
@@ -500,6 +500,8 @@ else:
         ["TTHDiLeptonTag",0]
         ]
 
+
+
 definedSysts=set()
 process.tagsDumper.NNLOPSWeightFile=cms.FileInPath("flashgg/Taggers/data/NNLOPS_reweight.root")
 process.tagsDumper.reweighGGHforNNLOPS = cms.untracked.bool(bool(customize.processId.count("ggh")))
@@ -507,6 +509,11 @@ process.tagsDumper.classifierCfg.remap=cms.untracked.VPSet()
 for tag in tagList:
   tagName=tag[0]
   tagCats=tag[1]
+  if "TTHHadronicTag" in tagName and process.tagsDumper.dumpTrees:
+     variablesToUse = minimalVariables + dipho_variables + tthvariables_had 
+  if "TTHLeptonicTag" in tagName and process.tagsDumper.dumpTrees:
+     variablesToUse = minimalVariables + dipho_variables + tthvariables_lep 
+  variablesToUse.append("weight_JetBTagWeight:=weight(\"JetBTagReshapeWeightCentral\")")
   # remap return value of class-based classifier
   process.tagsDumper.classifierCfg.remap.append( cms.untracked.PSet( src=cms.untracked.string("flashgg%s"%tagName), dst=cms.untracked.string(tagName) ) )
   for systlabel in systlabels:
@@ -787,9 +794,9 @@ customize(process)
 #    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
 #    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
 
-#if is_signal:
-#    remotefilename = (process.source.fileNames)[0]
-#    from subprocess import call
-#    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
-#    localfilename = remotefilename.split("/")[-1]
-#    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
+if is_signal:
+    remotefilename = (process.source.fileNames)[0]
+    from subprocess import call
+    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
+    localfilename = remotefilename.split("/")[-1]
+    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
