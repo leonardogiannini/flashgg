@@ -213,7 +213,7 @@ namespace flashgg {
         float dnn_score_0_;
        
         float tthMvaVal_RunII_;
-
+        float genHPt_;
         BDT_resolvedTopTagger *topTagger;
         DNN_Helper* dnn;
 
@@ -635,6 +635,7 @@ namespace flashgg {
         }
 
         produces<vector<TagTruthBase> >();
+        genHPt_ = -999; 
     }
 
     int TTHLeptonicTagProducer::chooseCategory( float tthmvavalue , bool debug_)
@@ -1400,6 +1401,13 @@ namespace flashgg {
 
                 if(catNumber!=-1)
                 {
+
+                    for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ )
+                    {
+                        int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+                        if (pdgid == 25) genHPt_ = genParticles->ptrAt( genLoop )->p4().pt();
+                    }
+
                     TTHLeptonicTag tthltags_obj( dipho, mvares );
                     tthltags_obj.setCategoryNumber(catNumber);
 
@@ -1431,6 +1439,7 @@ namespace flashgg {
                     std::string syst_label = modifySystematicsWorkflow ? systematicsLabels[syst_idx] : systLabel_;
                     tthltags_obj.setSystLabel( syst_label );
                     tthltags_obj.setMvaRes(mvaValue);
+                    tthltags_obj.setMvaRunII(mvaValue);
                     tthltags_obj.setLepPt( lepPt );
                     tthltags_obj.setLepE( lepE );
                     tthltags_obj.setLepEta( lepEta );
@@ -1456,6 +1465,7 @@ namespace flashgg {
                     tthltags_obj.setSubleadMomID(-999);
                     tthltags_obj.setSubleadMomMomID(-999);
                     tthltags_obj.setSubleadSmallestDr(-999);
+                    tthltags_obj.setGenHPt(genHPt_);
                                 
                     tthltags->push_back( tthltags_obj );
      

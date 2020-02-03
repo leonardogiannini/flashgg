@@ -34,6 +34,9 @@ namespace flashgg {
         float thirdMaxBTagVal() const {return thirdMaxBTagVal_;}
         float fourthMaxBTagVal() const {return fourthMaxBTagVal_;}
         float tthMvaRes() const {return tthMvaRes_;}
+        float tthMvaRunII() const {return tthMvaRunII_;}
+        float genHPt() const {return genHPt_;}
+
         void setNjet( int nb ) { Njet_ = nb; }
         void setNBLoose( int nb ) { Nbtagloose_ = nb; }
         void setNBMedium( int nb ) { Nbtagmedium_ = nb; }
@@ -47,7 +50,9 @@ namespace flashgg {
         void setFourthMaxBTagVal( float dval ) { fourthMaxBTagVal_ = dval;}
         void setJetBTagValVec( std::vector<float> vec ) { theJetBTagValVec_ = vec;}
         void setMVAres(float val) {tthMvaRes_ = val;}
+        void setMVARunII(float val) {tthMvaRunII_ = val;}
         void setMET( edm::Ptr<flashgg::Met> MET ) {MET_ = MET;}
+        void setGenHPt(float val) {genHPt_ = val;}
 
         DiPhotonTagBase::tag_t tagEnum() const override {return DiPhotonTagBase::kTTHHadronic; }
 
@@ -69,6 +74,9 @@ namespace flashgg {
         float thirdMaxBTagVal_;
         float fourthMaxBTagVal_;
         float tthMvaRes_;
+        float tthMvaRunII_;
+
+        float genHPt_;
         
 
     };

@@ -214,6 +214,8 @@ tthvariables_lep = [
                         "jet_energy13  := ?(jets.size>12)? jets.at(12).energy : -1",
                         "jet_energy14  := ?(jets.size>13)? jets.at(13).energy : -1",
                         "jet_energy15  := ?(jets.size>14)? jets.at(14).energy : -1",
+                        "tthMVA := mvaRunII",
+                        "pTHGen := genHPt"
         ]
 
 tthvariables_had = [
@@ -334,6 +336,7 @@ tthvariables_had = [
                         "jet13_energy  := ?(jetVector.size>12)? jetVector.at(12).energy : -1",                        
                         "jet14_energy  := ?(jetVector.size>13)? jetVector.at(13).energy : -1",
                         "jet15_energy  := ?(jetVector.size>14)? jetVector.at(14).energy : -1",
-                        "tthMVA := tthMvaRes"
+                        "tthMVA := tthMvaRunII",
+                        "pTHGen := genHPt"
 
         ]

@@ -538,8 +538,8 @@ for tag in tagList:
       isBinnedOnly = (systlabel !=  "")
       if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
-          dumpPdfWeights = False
-          #dumpPdfWeights = True
+          #dumpPdfWeights = False
+          dumpPdfWeights = True
           nPdfWeights = 60
           nAlphaSWeights = 2
           nScaleWeights = 9
@@ -794,9 +794,9 @@ customize(process)
 #    newname = "root://cms-xrd-global.cern.ch//store" + (oldname.split("store"))[1]
 #    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(newname))
 
-if is_signal:
-    remotefilename = (process.source.fileNames)[0]
-    from subprocess import call
-    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
-    localfilename = remotefilename.split("/")[-1]
-    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))
+#if is_signal:
+#    remotefilename = (process.source.fileNames)[0]
+#    from subprocess import call
+#    call("xrdcp " + remotefilename + " ${CMSSW_BASE}/src", shell=True)
+#    localfilename = remotefilename.split("/")[-1]
+#    process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring('file:${CMSSW_BASE}/src/'+localfilename))

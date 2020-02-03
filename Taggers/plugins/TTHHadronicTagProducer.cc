@@ -196,6 +196,8 @@ namespace flashgg {
       
         float tthMvaVal_;
         float tthMvaVal_RunII_;
+
+        float genHPt_;
         
         float maxBTagVal_noBB_;
         float secondMaxBTagVal_noBB_;
@@ -857,6 +859,7 @@ namespace flashgg {
                 dnn_score_0_ = -999.;
                 dnn_score_1_ = -999.;
                 tthMvaVal_RunII_ = -999.;
+                genHPt_ = -999.;
 
                 unsigned int jetCollectionIndex = diPhotons->ptrAt( diphoIndex )->jetCollectionIndex();
 
@@ -1270,6 +1273,12 @@ namespace flashgg {
                 }
                 
                 if( isTTHHadronicTagged ) {
+                    for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
+                        int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+                            if (pdgid == 25) {
+                                genHPt_ = genParticles->ptrAt( genLoop )->p4().pt();
+                            }
+                        }
 
                     TTHHadronicTag tthhtags_obj( dipho, mvares, JetVect, BJetVect );
                     tthhtags_obj.setCategoryNumber(catnum  );
@@ -1288,8 +1297,11 @@ namespace flashgg {
                     std::string syst_label = modifySystematicsWorkflow ? systematicsLabels[syst_idx] : systLabel_;
                     tthhtags_obj.setSystLabel( syst_label ); 
                     tthhtags_obj.setMVAres(tthMvaVal_);
+                    tthhtags_obj.setMVARunII(tthMvaVal_);
                     tthhtags_obj.setMET( theMET );
-
+                    if( ! evt.isRealData() ) {
+                        tthhtags_obj.setGenHPt(genHPt_);
+                    }
                     if(!useTTHHadronicMVA_){
                         for( unsigned num = 0; num < JetVect.size(); num++ ) {
                             tthhtags_obj.includeWeightsByLabel( *JetVect[num] , "JetBTagCutWeight");
