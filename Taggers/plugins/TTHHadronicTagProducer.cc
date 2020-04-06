@@ -1289,6 +1289,12 @@ namespace flashgg {
                     int chosenTag = computeStage1Kinematics( tthhtags_obj );
                     tthhtags_obj.setStage1recoTag( chosenTag );
 
+                    tthhtags_obj.includeWeights( *dipho );
+                    cout << "psv weight: " << dipho->weight("PixelSeedWeight") << endl; 
+                    tthhtags_obj.includeWeightsByLabel(*dipho, "PixelSeedWeight", false);
+                    cout << "psv weight: " << dipho->weight("PixelSeedWeight") << endl; 
+                    tthhtags_obj.setCentralWeight(tthhtags_obj.centralWeight()*tthhtags_obj.weight("PixelSeedWeight"));
+
                     if(!useTTHHadronicMVA_){
                         for( unsigned num = 0; num < JetVect.size(); num++ ) {
                             tthhtags_obj.includeWeightsByLabel( *JetVect[num] , "JetBTagCutWeight");
@@ -1296,10 +1302,9 @@ namespace flashgg {
                         }
                     } else {
                         for( unsigned num = 0; num < JetVect.size(); num++ ) {
-                            tthhtags_obj.includeWeightsByLabel( *JetVect[num] , "JetBTagReshapeWeight");
+                            tthhtags_obj.includeWeightsByLabel( *JetVect[num] , "JetBTagReshapeWeight", false);
                         }                    
                     }
-                    tthhtags_obj.includeWeights( *dipho );
 
                     tthhtags->push_back( tthhtags_obj );
                 }

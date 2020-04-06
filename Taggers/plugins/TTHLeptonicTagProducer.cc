@@ -1477,9 +1477,11 @@ namespace flashgg {
                     int chosenTag = computeStage1Kinematics( tthltags_obj );
                     tthltags_obj.setStage1recoTag( chosenTag );
 
+                    tthltags_obj.includeWeights( *dipho );
+
                     for( unsigned int i = 0; i < tagJets.size(); ++i )
                     {
-                        tthltags_obj.includeWeightsByLabel( *tagJets[i] , "JetBTagReshapeWeight");
+                        tthltags_obj.includeWeightsByLabel( *tagJets[i] , "JetBTagReshapeWeight", false);
                     }
 
 
@@ -1489,7 +1491,9 @@ namespace flashgg {
                     for( unsigned int i = 0; i < Electrons.size(); ++i )
                         tthltags_obj.includeWeights( *Electrons.at(i));
 
-                    tthltags_obj.includeWeights( *dipho );
+                    tthltags_obj.includeWeightsByLabel( *dipho , "PixelSeedWeight", false);
+                    //tthltags_obj.setCentralWeight(tthltags_obj.centralWeight()*tthltags_obj.weight("PixelSeedWeight"));
+
                     tthltags_obj.setJets( tagJets );
                     tthltags_obj.setMuons( Muons );
                     tthltags_obj.setElectrons( Electrons );
