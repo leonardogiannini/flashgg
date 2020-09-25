@@ -74,6 +74,10 @@ cfgTools.addCategories(process.dumper,
                            'leadPhiWidth_uncorr := ? leadingPhoton.hasUserFloat("uncorr_phiWidth")>0 ? leadingPhoton.userFloat("uncorr_phiWidth") : -1',
                            'leadPhoIso := leadingPhoton.pfPhoIso03',
                            'leadPhoIso_uncorr := ? leadingPhoton.hasUserFloat("uncorr_pfPhoIso03")>0 ? leadingPhoton.userFloat("uncorr_pfPhoIso03") : -1',
+                           'leadchgHadIso := leadingPhoton.egChargedHadronIso',
+                           'leadhoe := leadingPhoton.hadronicOverEm',
+                           'leadeVeto := leadingPhoton.passElectronVeto',
+                           'leadtrkSumPtHollowConeDR03 := leadingPhoton.trkSumPtHollowConeDR03',
                            'subleadEnergy := subLeadingPhoton.p4.energy',
                            'subleadInitialEnergy := subLeadingPhoton.energyAtStep("initial")',
 #                           'subleadEnergy_corr := subLeadingPhoton.userFloat("afterDiffCorr_regr_E")',
@@ -95,7 +99,11 @@ cfgTools.addCategories(process.dumper,
                            'subleadPhiWidth := ? subLeadingPhoton.hasUserFloat("phiWidth")>0 ? subLeadingPhoton.userFloat("phiWidth") : -1',
                            'subleadPhiWidth_uncorr := ? subLeadingPhoton.hasUserFloat("uncorr_phiWidth")>0 ? subLeadingPhoton.userFloat("uncorr_phiWidth") : -1',
                            'subleadPhoIso := subLeadingPhoton.pfPhoIso03',
-                           'subleadPhoIso_uncorr := ? subLeadingPhoton.hasUserFloat("uncorr_pfPhoIso03")>0 ? subLeadingPhoton.userFloat("uncorr_pfPhoIso03") : -1'
+                           'subleadPhoIso_uncorr := ? subLeadingPhoton.hasUserFloat("uncorr_pfPhoIso03")>0 ? subLeadingPhoton.userFloat("uncorr_pfPhoIso03") : -1',
+                           'subleadchgHadIso := subLeadingPhoton.egChargedHadronIso',
+                           'subleadhoe := subLeadingPhoton.hadronicOverEm',
+                           'subleadeVeto := subLeadingPhoton.passElectronVeto',
+                           'subleadtrkSumPtHollowConeDR03 := subLeadingPhoton.trkSumPtHollowConeDR03'
                        ],
                        histograms=[]
 )
