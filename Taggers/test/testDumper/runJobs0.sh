@@ -24,7 +24,11 @@
 #
 #declare -a jobIdsMap=()
 #cmsRun /afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/Taggers/test/test_dumper_clean2.py maxEvents=100 runOnZee=False pujidWP=tight dumpJetSysTrees=False campaign=Era2017_RR-31Mar2018_v1 metaConditions=/afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/MetaData/data/MetaConditions/Era2017_RR-31Mar2018_v1.json useAAA=True copyInputMicroAOD=True processIdMap=/afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/Taggers/test/testDumper/ttH2017_24Sep20/config.json dataset=/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8 outputFile=ttH2017_24Sep20/output_ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_spigazzi-Era2017_RR-31Mar2018_v2-legacyRun2FullV1-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1-8898d473234391c75fcfaef6f4012781_USER.root #nJobs=-1 jobId=${jobIdsMap[${1}]} 
-cmsRun /afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/Taggers/test/test_dumper_clean2.py maxEvents=10000 campaign=Era2017_RR-31Mar2018_v1 metaConditions=/afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/MetaData/data/MetaConditions/Era2017_RR-31Mar2018_v1.json useAAA=True copyInputMicroAOD=True processIdMap=/afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/Taggers/test/testDumper/ttH2017_24Sep20/config.json dataset=/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8 outputFile=ttH2017_24Sep20/output_ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_spigazzi-Era2017_RR-31Mar2018_v2-legacyRun2FullV1-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1-8898d473234391c75fcfaef6f4012781_USER.root #nJobs=-1 jobId=${jobIdsMap[${1}]} 
+cmsRun /afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/Taggers/test/test_dumper_clean2.py maxEvents=-1 campaign=Era2017_RR-31Mar2018_v1 metaConditions=/afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/MetaData/data/MetaConditions/Era2017_RR-31Mar2018_v1.json useAAA=True copyInputMicroAOD=True processIdMap=/afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/Taggers/test/testDumper/ttH2017_24Sep20/config.json dataset=/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8 outputFile=ttH2017_24Sep20/output_ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_spigazzi-Era2017_RR-31Mar2018_v2-legacyRun2FullV1-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1-8898d473234391c75fcfaef6f4012781_USER.root #nJobs=-1 jobId=${jobIdsMap[${1}]} 
+
+cd ttH2017_24Sep20
+python printEff.py
+cd -
 #retval=$?
 #if [[ $retval != 0 ]]; then
 #    retval=$(( ${jobIdsMap[${1}]} + 1 )) 

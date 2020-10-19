@@ -15,8 +15,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.source = cms.Source ("PoolSource",
                              #fileNames = cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/user/spigazzi/flashgg/Era2017_RR-31Mar2018_v1/legacyRun2TestV1/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8/Era2017_RR-31Mar2018_v1-legacyRun2TestV1-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/190319_112256/0000/myMicroAODOutputFile_9.root")
-                             #fileNames = cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/user/spigazzi/flashgg/Era2017_RR-31Mar2018_v2/legacyRun2FullV1/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/Era2017_RR-31Mar2018_v2-legacyRun2FullV1-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/190606_094541/0000/myMicroAODOutputFile_851.root")
-                             fileNames = cms.untracked.vstring("myMicroAODOutputFile.root")
+#                             #fileNames = cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/user/spigazzi/flashgg/Era2017_RR-31Mar2018_v2/legacyRun2FullV1/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/Era2017_RR-31Mar2018_v2-legacyRun2FullV1-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/190606_094541/0000/myMicroAODOutputFile_851.root")
+                             fileNames = cms.untracked.vstring("")
 )
 
 #process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -42,11 +42,15 @@ process.flashggDiPhotons.useZerothVertexFromMicro = cms.bool(True)
 process.flashggDiPhotons.vertexIdMVAweightfile = customize.metaConditions['flashggDiPhotons']['vertexIdMVAweightfile'].encode("ascii")
 process.flashggDiPhotons.vertexProbMVAweightfile = customize.metaConditions['flashggDiPhotons']['vertexProbMVAweightfile'].encode("ascii")
 
+from flashgg.Taggers.flashggPreselectedDiPhotons_cfi import flashggPreselectedDiPhotons
+process.flashggPreselectedDiPhotons = flashggPreselectedDiPhotons.clone()
+process.flashggPreselectedDiPhotons.src = "flashggDiPhotons"
+
 from flashgg.Taggers.diphotonDumper_cfi import diphotonDumper
 import flashgg.Taggers.dumperConfigTools as cfgTools
 process.dumper = diphotonDumper
 process.dumper.dumpTrees = True
-process.dumper.src = "flashggDiPhotons"
+process.dumper.src = "flashggPreselectedDiPhotons"
 process.dumper.nameTemplate = "test_$LABEL"
 cfgTools.addCategories(process.dumper,
                        [("All", "1", 0)],
@@ -112,9 +116,10 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("test_diff_phoId_corrections.root"))
 
 
-process.s = cms.Sequence(process.flashggDiPhotons*process.dumper)
+#process.s = cms.Sequence(process.flashggDiPhotons*process.flashggPreselectedDiPhotons*process.dumper)
+process.s = cms.Sequence(process.flashggPreselectedDiPhotons*process.dumper)
 process.p = cms.Path(process.s)
 customize(process)
 
-process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:${CMSSW_BASE}/src/flashgg/Taggers/test/myMicroAODOutputFile.root"))
 
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:${CMSSW_BASE}/src/flashgg/Taggers/test/myMicroAODOutputFile.root"))
