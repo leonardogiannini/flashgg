@@ -11,8 +11,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 10000 )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000 )
 
 import os
 process.GlobalTag = GlobalTag(process.GlobalTag, '', '')
@@ -57,4 +57,6 @@ customize(process)
 
 if "DY" in customize.datasetName or "SingleElectron" in customize.datasetName or "DoubleEG" in customize.datasetName or "EGamma" in customize.datasetName:
     customize.customizeHLT(process)
+
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("root://cms-xrd-global.cern.ch//store/mc/RunIIAutumn18MiniAOD/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/260000/27891EA5-F05F-5648-AD45-1D47EC8BE543.root"))
 

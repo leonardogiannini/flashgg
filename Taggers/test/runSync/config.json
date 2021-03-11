@@ -1,0 +1,34 @@
+{
+    "cont": false, 
+    "verbose": false, 
+    "ncondorcpu": 1, 
+    "jobExe": "cmsRun", 
+    "resubmit_ids": "", 
+    "njobs": 50, 
+    "resubMissing": false, 
+    "selectedDatasetPatterns": null, 
+    "hadd": false, 
+    "cmdLine": "campaign=Era2017_RR-31Mar2018_v1 metaConditions=$CMSSW_BASE/src/flashgg/MetaData/data/MetaConditions/Era2017_RR-31Mar2018_v1.json useAAA=True copyInputMicroAOD=True", 
+    "stageCmd": "guess", 
+    "outputDir": "ttH2017_24Sep20", 
+    "asyncLsf": true, 
+    "maxResub": 2, 
+    "ncpu": 10, 
+    "copy_proxy": false, 
+    "processes": {
+        "tth_125": [
+            "/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/spigazzi-Era2017_RR-31Mar2018_v2-legacyRun2FullV1-v0-RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1-8898d473234391c75fcfaef6f4012781/USER"
+        ]
+    }, 
+    "useTarball": true, 
+    "stageTo": "/afs/cern.ch/work/h/hmei/ttH/CMSSW_10_6_8/src/flashgg/Taggers/test/testDumper/", 
+    "__opts__": null, 
+    "hadd_dataset": false, 
+    "use_tarball": true, 
+    "__opts___src": "example_ttH.json", 
+    "queue": "tomorrow", 
+    "hadd_process": false, 
+    "batchSystem": "htcondor", 
+    "output": "output.root", 
+    "lighttarball": false
+}

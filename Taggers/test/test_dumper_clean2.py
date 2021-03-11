@@ -122,4 +122,4 @@ process.p = cms.Path(process.s)
 customize(process)
 
 
-process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:${CMSSW_BASE}/src/flashgg/Taggers/test/myMicroAODOutputFile.root"))
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:${CMSSW_BASE}/src/flashgg/Taggers/test/myMicroAODOutputFile2.root"))

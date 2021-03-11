@@ -1,0 +1,1 @@
+cmsRun $CMSSW_BASE/src/flashgg/Taggers/test/microAODstd.py processType=sig_ttH datasetName=ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8 conditionsJSON=$CMSSW_BASE/src/flashgg/MetaData/data/MetaConditions/Era2018_RR-17Sep2018_v1.json

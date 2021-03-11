@@ -1,0 +1,1 @@
+cmsRun $CMSSW_BASE/src/flashgg/Taggers/test/test_dumper_clean2.py maxEvents=-1 campaign=Era2017_RR-31Mar2018_v1 metaConditions=$CMSSW_BASE/src/flashgg/MetaData/data/MetaConditions/Era2018_RR-17Sep2018_v1.json useAAA=True copyInputMicroAOD=True processIdMap=./config.json  outputFile=Hgg_sync/output_USER.root #nJobs=-1 jobId=${jobIdsMap[${1}]} 
