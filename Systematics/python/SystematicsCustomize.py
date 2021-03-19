@@ -108,7 +108,10 @@ def modifyTagSequenceForSystematics(process,jetSystematicsInputTags,ZPlusJetMode
     for i in range(len(jetSystematicsInputTags)):
         massSearchReplaceAnyInputTag(process.flashggTagSequence,UnpackedJetCollectionVInputTag[i],jetSystematicsInputTags[i])
 
-    if ZPlusJetMode == 2:  # VBF    
+    if ZPlusJetMode == 3:  # VBF    
+        process.flashggSystTagMerger = cms.EDProducer("TTHLeptonicTagMerger",src=cms.VInputTag("flashggTTHLeptonicTag"))
+        #process.flashggSystTagMerger = cms.EDProducer("unTagMerger",src=cms.VInputTag("flashggUntagged"))
+    elif ZPlusJetMode == 2:  # VBF    
         process.flashggSystTagMerger = cms.EDProducer("VBFTagMerger",src=cms.VInputTag("flashggVBFTag"))
     elif ZPlusJetMode:    
         process.flashggSystTagMerger = cms.EDProducer("ZPlusJetTagMerger",src=cms.VInputTag("flashggZPlusJetTag"))
@@ -168,7 +171,10 @@ def cloneTagSequenceForEachSystematic(process,systlabels=[],phosystlabels=[],met
             if hasattr(module,"SystLabel"):
                 module.SystLabel = systlabel
         process.systematicsTagSequences += newseq
-        if ZPlusJetMode == 2:
+        if ZPlusJetMode == 3:
+            process.flashggSystTagMerger.src.append(cms.InputTag("flashggTTHLeptonicTag" + systlabel))
+            #process.flashggSystTagMerger.src.append(cms.InputTag("flashggUntagged" + systlabel))
+        elif ZPlusJetMode == 2:
             process.flashggSystTagMerger.src.append(cms.InputTag("flashggVBFTag" + systlabel))
         elif ZPlusJetMode:
             process.flashggSystTagMerger.src.append(cms.InputTag("flashggZPlusJetTag" + systlabel))

@@ -3,15 +3,21 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "flashgg/DataFormats/interface/DiPhotonTagBase.h"
 #include "flashgg/DataFormats/interface/VBFTag.h"
+#include "flashgg/DataFormats/interface/TTHLeptonicTag.h"
+#include "flashgg/DataFormats/interface/UntaggedTag.h"
 #include "flashgg/DataFormats/interface/ZPlusJetTag.h"
 
 typedef Merger<edm::OwnVector<flashgg::DiPhotonTagBase> > TagMerger;
 typedef Merger<std::vector<flashgg::VBFTag> > VBFTagMerger;
+typedef Merger<std::vector<flashgg::TTHLeptonicTag> > TTHLeptonicTagMerger;
+typedef Merger<std::vector<flashgg::UntaggedTag> > unTagMerger;
 typedef Merger<std::vector<flashgg::ZPlusJetTag> > ZPlusJetTagMerger;
 
 
 DEFINE_FWK_MODULE( TagMerger );
+DEFINE_FWK_MODULE( unTagMerger );
 DEFINE_FWK_MODULE( VBFTagMerger );
+DEFINE_FWK_MODULE( TTHLeptonicTagMerger );
 DEFINE_FWK_MODULE( ZPlusJetTagMerger );
 
 // Local Variables:

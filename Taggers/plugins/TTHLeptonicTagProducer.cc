@@ -16,6 +16,7 @@
 #include "flashgg/DataFormats/interface/Met.h"
 #include "flashgg/DataFormats/interface/Photon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "flashgg/DataFormats/interface/TagTruthBase.h"
 
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "flashgg/Taggers/interface/LeptonSelection2018.h"
@@ -818,6 +819,8 @@ namespace flashgg {
 
             std::unique_ptr<vector<TTHLeptonicTag> > tthltags( new vector<TTHLeptonicTag> );
 
+
+            TagTruthBase truth_obj;
             if( ! evt.isRealData() )
             {
                 evt.getByToken( genParticleToken_, genParticles );
@@ -827,6 +830,7 @@ namespace flashgg {
             for( unsigned int diphoIndex = 0; diphoIndex < diPhotons->size(); diphoIndex++ )
             {
                 unsigned int jetCollectionIndex = diPhotons->ptrAt( diphoIndex )->jetCollectionIndex();
+                cout << "diphoIndex: " << diphoIndex << endl;
 
                 edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( diphoIndex );
                 edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
@@ -1137,6 +1141,7 @@ namespace flashgg {
                 if(debug_)
                     cout << "Jets after selections " << njet_ << ", bJets " << njets_btagmedium_ << endl;
 
+                /*
                 std::sort(bTags.begin(),bTags.end(),std::greater<float>());
                 std::sort(bTags_noBB.begin(),bTags_noBB.end(),std::greater<float>());
 
@@ -1170,17 +1175,17 @@ namespace flashgg {
                     jetEta_3_=tagJets[2]->eta();
                     jetPhi_3_=tagJets[2]->phi();
                 }
-                /* kinematics of fourth leading jet not currently used in BDT
-                if(tagJets.size()>3){
-                    if(bTag_ == "pfDeepCSV") btag_4_=tagJets[3]->bDiscriminator("pfDeepCSVJetTags:probb")+tagJets[3]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
-                    else  btag_4_ = tagJets[3]->bDiscriminator( bTag_ );
-                    if(bTag_ == "pfDeepCSV") btag_noBB_4_=tagJets[3]->bDiscriminator("pfDeepCSVJetTags:probb");
-                    else  btag_noBB_4_ = tagJets[3]->bDiscriminator( bTag_ );
-                    jetPt_4_=tagJets[3]->pt();
-                    jetEta_4_=tagJets[3]->eta();
-                    jetPhi_4_=tagJets[3]->phi();
-                } */
-
+                // kinematics of fourth leading jet not currently used in BDT
+                //if(tagJets.size()>3){
+                //    if(bTag_ == "pfDeepCSV") btag_4_=tagJets[3]->bDiscriminator("pfDeepCSVJetTags:probb")+tagJets[3]->bDiscriminator("pfDeepCSVJetTags:probbb") ;
+                //    else  btag_4_ = tagJets[3]->bDiscriminator( bTag_ );
+                //    if(bTag_ == "pfDeepCSV") btag_noBB_4_=tagJets[3]->bDiscriminator("pfDeepCSVJetTags:probb");
+                //    else  btag_noBB_4_ = tagJets[3]->bDiscriminator( bTag_ );
+                //    jetPt_4_=tagJets[3]->pt();
+                //    jetEta_4_=tagJets[3]->eta();
+                //    jetPhi_4_=tagJets[3]->phi();
+                //} 
+                */
                 diPhoY_= dipho->rapidity();
                 diPhoPtoM_= dipho->pt()/dipho->mass();
                 diPhoCosPhi_=  abs(TMath::Cos( deltaPhi( dipho->leadingPhoton()->phi(), dipho->subLeadingPhoton()->phi() ) ));
@@ -1201,70 +1206,70 @@ namespace flashgg {
                 minPhoID_=TMath::Min( leadIDMVA_, subleadIDMVA_);
                 maxPhoID_=TMath::Max( leadIDMVA_, subleadIDMVA_);
 
-                maxBTagVal_noBB_ = bTags_noBB.size() > 0 ? bTags_noBB[0] : -1.;
-                secondMaxBTagVal_noBB_ = bTags_noBB.size() > 1 ? bTags_noBB[1]: -1.;
+                //maxBTagVal_noBB_ = bTags_noBB.size() > 0 ? bTags_noBB[0] : -1.;
+                //secondMaxBTagVal_noBB_ = bTags_noBB.size() > 1 ? bTags_noBB[1]: -1.;
 
                 lepton_nTight_ = float(MuonsTight.size() + ElectronsTight.size());
 
-                if(tagJets.size()==0)
-                {
-                    jet_pt1_ = -1;
-                    jet_pt2_ = -1.;
-                    jet_pt3_ = -1.;
-                    jet_eta1_ = -5;
-                    jet_eta2_ = -5.;
-                    jet_eta3_ = -5.;
+                //if(tagJets.size()==0)
+                //{
+                //    jet_pt1_ = -1;
+                //    jet_pt2_ = -1.;
+                //    jet_pt3_ = -1.;
+                //    jet_eta1_ = -5;
+                //    jet_eta2_ = -5.;
+                //    jet_eta3_ = -5.;
 
-                    bTag1_ = -1;
-                    bTag2_ = -1;
-                
-                }else if(tagJets.size()==1)
-                {
-                    jet_pt1_ = tagJets[0]->pt();
-                    jet_pt2_ = -1.;
-                    jet_pt3_ = -1.;
-                    jet_eta1_ = tagJets[0]->eta();
-                    jet_eta2_ = -5.;
-                    jet_eta3_ = -5.;
+                //    bTag1_ = -1;
+                //    bTag2_ = -1;
+                //
+                //}else if(tagJets.size()==1)
+                //{
+                //    jet_pt1_ = tagJets[0]->pt();
+                //    jet_pt2_ = -1.;
+                //    jet_pt3_ = -1.;
+                //    jet_eta1_ = tagJets[0]->eta();
+                //    jet_eta2_ = -5.;
+                //    jet_eta3_ = -5.;
 
-                    bTag1_ = bTags[0];
-                    bTag2_ = -1.;
-                }
-                else if(tagJets.size()==2)
-                {
-                    jet_pt1_ = tagJets[0]->pt();
-                    jet_pt2_ = tagJets[1]->pt();
-                    jet_pt3_ = -1.;
-                    jet_eta1_ = tagJets[0]->eta();
-                    jet_eta2_ = tagJets[1]->eta();
-                    jet_eta3_ = -5.;
+                //    bTag1_ = bTags[0];
+                //    bTag2_ = -1.;
+                //}
+                //else if(tagJets.size()==2)
+                //{
+                //    jet_pt1_ = tagJets[0]->pt();
+                //    jet_pt2_ = tagJets[1]->pt();
+                //    jet_pt3_ = -1.;
+                //    jet_eta1_ = tagJets[0]->eta();
+                //    jet_eta2_ = tagJets[1]->eta();
+                //    jet_eta3_ = -5.;
 
-                    bTag1_ = bTags[0];
-                    bTag2_ = bTags[1];
-                }
-                else
-                {
-                    jet_pt1_ = tagJets[0]->pt();
-                    jet_pt2_ = tagJets[1]->pt();
-                    jet_pt3_ = tagJets[2]->pt();
-                    jet_eta1_ = tagJets[0]->eta();
-                    jet_eta2_ = tagJets[1]->eta();
-                    jet_eta3_ = tagJets[2]->eta();
+                //    bTag1_ = bTags[0];
+                //    bTag2_ = bTags[1];
+                //}
+                //else
+                //{
+                //    jet_pt1_ = tagJets[0]->pt();
+                //    jet_pt2_ = tagJets[1]->pt();
+                //    jet_pt3_ = tagJets[2]->pt();
+                //    jet_eta1_ = tagJets[0]->eta();
+                //    jet_eta2_ = tagJets[1]->eta();
+                //    jet_eta3_ = tagJets[2]->eta();
 
-                    bTag1_ = bTags[0];
-                    bTag2_ = bTags[1];
-                }
+                //    bTag1_ = bTags[0];
+                //    bTag2_ = bTags[1];
+                //}
 
-                if( theMet_ -> size() != 1 )
-                    std::cout << "WARNING number of MET is not equal to 1" << std::endl;
-                MetPt_ = theMet_->ptrAt( 0 ) -> getCorPt();
-                MetPhi_ = theMet_->ptrAt( 0 ) -> phi();
+                //if( theMet_ -> size() != 1 )
+                //    std::cout << "WARNING number of MET is not equal to 1" << std::endl;
+                //MetPt_ = theMet_->ptrAt( 0 ) -> getCorPt();
+                //MetPhi_ = theMet_->ptrAt( 0 ) -> phi();
 
                 TLorentzVector pho1, pho2;
                 pho1.SetPtEtaPhiE(dipho->leadingPhoton()->pt(), dipho->leadingPhoton()->eta(), dipho->leadingPhoton()->phi(), dipho->leadingPhoton()->energy());
                 pho2.SetPtEtaPhiE(dipho->subLeadingPhoton()->pt(), dipho->subLeadingPhoton()->eta(), dipho->subLeadingPhoton()->phi(), dipho->subLeadingPhoton()->energy());
                 helicity_angle_ = helicity(pho1, pho2);
-
+                /*
                 std::vector<double> global_features;
                 global_features.resize(19);
                 global_features[0] = dipho->leadingPhoton()->eta();
@@ -1420,7 +1425,9 @@ namespace flashgg {
               }
 
               global_features.clear();
+              */
 
+              float mvaValue = -999;
               mvaValue = tthMvaVal_RunII_; // use Run II MVA for categorization
 
                 //int catNumber = -1;
@@ -1469,64 +1476,67 @@ namespace flashgg {
                     cout << "TTHLeptonicTag -- output MVA value " << mvaValue << " " << DiphotonMva_-> EvaluateMVA( "BDT" ) << ", category " << catNumber_pt << endl;
                 }
 
-                if(catNumber_pt!=-1)
+                if( 1/* && catNumber_pt!=-1*/)
                 {
+        
+                    cout << "dipho mass: " << dipho->mass() << endl;
                     TTHLeptonicTag tthltags_obj( dipho, mvares );
-                    tthltags_obj.setCategoryNumber(catNumber_pt);
+                    //tthltags_obj.setCategoryNumber(catNumber_pt);
                     //tthltags_obj.setCategoryNumber(catNumber);
+                    tthltags_obj.setCategoryNumber(0);
 
-                    int chosenTag = computeStage1Kinematics( tthltags_obj );
-                    tthltags_obj.setStage1recoTag( chosenTag );
+                   // int chosenTag = computeStage1Kinematics( tthltags_obj );
+                   // tthltags_obj.setStage1recoTag( chosenTag );
 
-                    for( unsigned int i = 0; i < tagJets.size(); ++i )
-                    {
-                        tthltags_obj.includeWeightsByLabel( *tagJets[i] , "JetBTagReshapeWeight");
-                    }
+                   // for( unsigned int i = 0; i < tagJets.size(); ++i )
+                   // {
+                   //     tthltags_obj.includeWeightsByLabel( *tagJets[i] , "JetBTagReshapeWeight");
+                   // }
 
 
-                    for( unsigned int i = 0; i < Muons.size(); ++i )
-                        tthltags_obj.includeWeights( *Muons.at(i));
+                   // for( unsigned int i = 0; i < Muons.size(); ++i )
+                   //     tthltags_obj.includeWeights( *Muons.at(i));
 
-                    for( unsigned int i = 0; i < Electrons.size(); ++i )
-                        tthltags_obj.includeWeights( *Electrons.at(i));
+                   // for( unsigned int i = 0; i < Electrons.size(); ++i )
+                   //     tthltags_obj.includeWeights( *Electrons.at(i));
 
                     tthltags_obj.includeWeights( *dipho );
-                    tthltags_obj.setJets( tagJets );
-                    tthltags_obj.setMuons( Muons );
-                    tthltags_obj.setElectrons( Electrons );
+                    //tthltags_obj.setJets( tagJets );
+                    //tthltags_obj.setMuons( Muons );
+                    //tthltags_obj.setElectrons( Electrons );
                     tthltags_obj.setDiPhotonIndex( diphoIndex );
                     std::string syst_label = modifySystematicsWorkflow ? systematicsLabels[syst_idx] : systLabel_;
                     tthltags_obj.setSystLabel( syst_label );
-                    tthltags_obj.setMvaRes(mvaValue);
-                    tthltags_obj.setLepPt( lepPt );
-                    tthltags_obj.setLepE( lepE );
-                    tthltags_obj.setLepEta( lepEta );
-                    tthltags_obj.setLepPhi( lepPhi );
-                    tthltags_obj.setLepType( lepType );
+                    //tthltags_obj.setMvaRes(mvaValue);
+                    //tthltags_obj.setLepPt( lepPt );
+                    //tthltags_obj.setLepE( lepE );
+                    //tthltags_obj.setLepEta( lepEta );
+                    //tthltags_obj.setLepPhi( lepPhi );
+                    //tthltags_obj.setLepType( lepType );
 
-                    tthltags_obj.setLeadPrompt(-999);
-                    tthltags_obj.setLeadMad(-999);
-                    tthltags_obj.setLeadPythia(-999);
-                    tthltags_obj.setLeadPassFrix(-999);
-                    tthltags_obj.setLeadSimpleMomID(-999);
-                    tthltags_obj.setLeadSimpleMomStatus(-999);
-                    tthltags_obj.setLeadMomID(-999);
-                    tthltags_obj.setLeadMomMomID(-999);
-                    tthltags_obj.setLeadSmallestDr(-999);
+                    //tthltags_obj.setLeadPrompt(-999);
+                    //tthltags_obj.setLeadMad(-999);
+                    //tthltags_obj.setLeadPythia(-999);
+                    //tthltags_obj.setLeadPassFrix(-999);
+                    //tthltags_obj.setLeadSimpleMomID(-999);
+                    //tthltags_obj.setLeadSimpleMomStatus(-999);
+                    //tthltags_obj.setLeadMomID(-999);
+                    //tthltags_obj.setLeadMomMomID(-999);
+                    //tthltags_obj.setLeadSmallestDr(-999);
 
-                    tthltags_obj.setSubleadPrompt(-999);
-                    tthltags_obj.setSubleadMad(-999);
-                    tthltags_obj.setSubleadPythia(-999);
-                    tthltags_obj.setSubleadPassFrix(-999);
-                    tthltags_obj.setSubleadSimpleMomID(-999);
-                    tthltags_obj.setSubleadSimpleMomStatus(-999);
-                    tthltags_obj.setSubleadMomID(-999);
-                    tthltags_obj.setSubleadMomMomID(-999);
-                    tthltags_obj.setSubleadSmallestDr(-999);
+                    //tthltags_obj.setSubleadPrompt(-999);
+                    //tthltags_obj.setSubleadMad(-999);
+                    //tthltags_obj.setSubleadPythia(-999);
+                    //tthltags_obj.setSubleadPassFrix(-999);
+                    //tthltags_obj.setSubleadSimpleMomID(-999);
+                    //tthltags_obj.setSubleadSimpleMomStatus(-999);
+                    //tthltags_obj.setSubleadMomID(-999);
+                    //tthltags_obj.setSubleadMomMomID(-999);
+                    //tthltags_obj.setSubleadSmallestDr(-999);
                                 
                     tthltags->push_back( tthltags_obj );
             
-                    if( ! evt.isRealData() )
+                    if(0 && ! evt.isRealData() )
                     {
                         evt.getByToken( genParticleToken_, genParticles );
                         int gp_lead_index = GenPhoIndex(genParticles, dipho->leadingPhoton(), -1);
