@@ -655,6 +655,7 @@ namespace flashgg {
 
         else {
             produces<vector<TTHLeptonicTag> >();
+            produces<vector<TagTruthBase> >();
         }
 
     }
@@ -818,6 +819,11 @@ namespace flashgg {
             assert( diPhotons->size() == mvaResults->size() );
 
             std::unique_ptr<vector<TTHLeptonicTag> > tthltags( new vector<TTHLeptonicTag> );
+            std::unique_ptr<vector<TagTruthBase> > truths( new vector<TagTruthBase> );
+
+            unsigned int idx = 0;
+            edm::RefProd<vector<TagTruthBase> > rTagTruth = evt.getRefBeforePut<vector<TagTruthBase> >();
+
 
 
             TagTruthBase truth_obj;
@@ -830,7 +836,6 @@ namespace flashgg {
             for( unsigned int diphoIndex = 0; diphoIndex < diPhotons->size(); diphoIndex++ )
             {
                 unsigned int jetCollectionIndex = diPhotons->ptrAt( diphoIndex )->jetCollectionIndex();
-                cout << "diphoIndex: " << diphoIndex << endl;
 
                 edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( diphoIndex );
                 edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
@@ -1479,7 +1484,6 @@ namespace flashgg {
                 if( 1/* && catNumber_pt!=-1*/)
                 {
         
-                    cout << "dipho mass: " << dipho->mass() << endl;
                     TTHLeptonicTag tthltags_obj( dipho, mvares );
                     //tthltags_obj.setCategoryNumber(catNumber_pt);
                     //tthltags_obj.setCategoryNumber(catNumber);
@@ -1535,6 +1539,10 @@ namespace flashgg {
                     //tthltags_obj.setSubleadSmallestDr(-999);
                                 
                     tthltags->push_back( tthltags_obj );
+                    if (! evt.isRealData()) {
+                        truths->push_back( truth_obj );
+                        tthltags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
+                    }
             
                     if(0 && ! evt.isRealData() )
                     {
@@ -1576,6 +1584,7 @@ namespace flashgg {
                 }
             } //diPho loop end !
             evt.put( std::move( tthltags ), systematicsLabels[syst_idx] );
+            evt.put( std::move( truths ) );
         } // syst loop end !
     }
 

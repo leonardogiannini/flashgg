@@ -115,7 +115,14 @@ else:
         systlabels += jetsystlabels
         for direction in ["Up","Down"]:
             phosystlabels += ["MvaShift%s01sigma" % direction,
-                           "SigmaEOverEShift%s01sigma" % direction
+                              "MaterialCentralBarrel%s01sigma" % direction,
+                              "MaterialOuterBarrel%s01sigma" % direction,
+                              "MaterialForward%s01sigma" % direction,
+                              "FNUFEB%s01sigma" % direction,
+                              "FNUFEE%s01sigma" % direction,
+                              "MCScaleGain6EB%s01sigma" % direction,
+                              "MCScaleGain1EB%s01sigma" % direction,
+                              "SigmaEOverEShift%s01sigma" % direction
                            ]
         systlabels += phosystlabels
     else:
@@ -189,6 +196,18 @@ cloneTagSequenceForEachSystematic(process,
 
 all_variables = var.dipho_variables #+ var.dijet_variables + new_variables
 
+variablesToUse = []
+for direction in ["Up","Down"]:
+    variablesToUse.append("LooseMvaSF%s01sigma[1,-999999.,999999.] := weight(\"LooseMvaSF%s01sigma\")" % (direction,direction))
+    variablesToUse.append("PreselSF%s01sigma[1,-999999.,999999.] := weight(\"PreselSF%s01sigma\")" % (direction,direction))
+    variablesToUse.append("electronVetoSF%s01sigma[1,-999999.,999999.] := weight(\"electronVetoSF%s01sigma\")" % (direction,direction))
+    variablesToUse.append("TriggerWeight%s01sigma[1,-999999.,999999.] := weight(\"TriggerWeight%s01sigma\")" % (direction,direction))
+
+variablesToUse.append("weight_LooseMvaSFWeight:=weight(\"LooseMvaSFCentral\")")
+variablesToUse.append("weight_PreselSF:=weight(\"PreselSFCentral\")")
+variablesToUse.append("weight_electronVetoSF:=weight(\"electronVetoSFCentral\")")
+variablesToUse.append("weight_TriggerWeight:=weight(\"TriggerWeightCentral\")")
+
 if customize.processId != "Data":
     #all_variables += matching_photon# + jet_syst_weights
     all_variables += var.stxs_truth_variables
@@ -206,7 +225,7 @@ cats += [
 
 cfgTools.addCategories(process.ttHLeptonicTagDumper,
                        cats,
-                       variables  = all_variables,
+                       variables  = all_variables + variablesToUse,
                        histograms = []
 )
 process.ttHLeptonicTagDumper.nameTemplate = "$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL"
