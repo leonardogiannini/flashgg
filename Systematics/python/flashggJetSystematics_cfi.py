@@ -232,21 +232,21 @@ class jetSystematicsCustomize:
                                )
 
       ## option to add the granular sources for jet systematics - off by default
-      if self.options.doSystematics and self.options.doGranularJEC :
-          for sourceName in self.metaConditions['flashggJetSystematics']['listOfSources']:
-              allJetUncerts += cms.VPSet( cms.PSet( MethodName = cms.string("FlashggJetEnergyCorrector"),
-                                                    Label = cms.string("JEC%s"%str(sourceName)),
-                                                    NSigmas = cms.vint32(-1,1),
-                                                    OverallRange = cms.string("abs(eta)<5.0"),
-                                                    Debug = cms.untracked.bool(False),
-                                                    ApplyCentralValue = cms.bool(False), ## these are only systematic variations, not additional corrections
-                                                    SetupUncertainties = cms.bool(False),
-                                                    UseTextFile = cms.bool(True), ## these are only available in txt files, not in global tag
-                                                    TextFileName = cms.FileInPath(str(self.metaConditions['flashggJetSystematics']['textFileName'])),
-                                                    SourceName = cms.string(str(sourceName)),
-                                                    JetCorrectorTag = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-                                                  ) 
-                                        )
+      #if self.options.doSystematics and self.options.doGranularJEC :
+      #    for sourceName in self.metaConditions['flashggJetSystematics']['listOfSources']:
+      #        allJetUncerts += cms.VPSet( cms.PSet( MethodName = cms.string("FlashggJetEnergyCorrector"),
+      #                                              Label = cms.string("JEC%s"%str(sourceName)),
+      #                                              NSigmas = cms.vint32(-1,1),
+      #                                              OverallRange = cms.string("abs(eta)<5.0"),
+      #                                              Debug = cms.untracked.bool(False),
+      #                                              ApplyCentralValue = cms.bool(False), ## these are only systematic variations, not additional corrections
+      #                                              SetupUncertainties = cms.bool(False),
+      #                                              UseTextFile = cms.bool(True), ## these are only available in txt files, not in global tag
+      #                                              TextFileName = cms.FileInPath(str(self.metaConditions['flashggJetSystematics']['textFileName'])),
+      #                                              SourceName = cms.string(str(sourceName)),
+      #                                              JetCorrectorTag = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+      #                                            ) 
+      #                                  )
 
       if self.metaConditions['flashggJetSystematics']['doHEMuncertainty'] and self.options.doSystematics:
           allJetUncerts += cms.VPSet( cms.PSet( MethodName = cms.string("FlashggJetHEMCorrector"),
