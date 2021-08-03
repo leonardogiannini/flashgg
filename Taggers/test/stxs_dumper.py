@@ -88,6 +88,7 @@ process.flashggTagSequence.remove(process.flashggTTHDiLeptonTag)
 process.flashggTagSequence.remove(process.flashggTTHLeptonicTag)
 process.flashggTagSequence.remove(process.flashggTHQLeptonicTag)
 process.flashggTagSequence.remove(process.flashggTTHHadronicTag)
+#process.flashggTagSequence.remove(process.flashggVBFTag)
 process.flashggTagSequence.remove(process.flashggVHMetTag)
 process.flashggTagSequence.remove(process.flashggWHLeptonicTag)
 process.flashggTagSequence.remove(process.flashggZHLeptonicTag)
@@ -283,7 +284,7 @@ cfgTools.addCategories(process.vbfTagDumper,
 )
 process.vbfTagDumper.nameTemplate = "$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL"
 
-filterHLTrigger(process, customize) #FIXME this might need adapting for our purposes
+#filterHLTrigger(process, customize) #FIXME this might need adapting for our purposes
 
 process.options      = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -359,3 +360,5 @@ if customize.useParentDataset:
 
 # call the customization
 customize(process)
+
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring("file:${CMSSW_BASE}/src/flashgg/Taggers/test/myMicroAODOutputFile.root"))
