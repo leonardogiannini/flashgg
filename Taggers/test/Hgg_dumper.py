@@ -122,7 +122,19 @@ else:
                               "FNUFEE%s01sigma" % direction,
                               "MCScaleGain6EB%s01sigma" % direction,
                               "MCScaleGain1EB%s01sigma" % direction,
-                              "SigmaEOverEShift%s01sigma" % direction
+                              "SigmaEOverEShift%s01sigma" % direction,
+			      "MCSmearLowR9EERho%s01sigma" % direction,
+                              "MCSmearLowR9EBRho%s01sigma" % direction,
+                              "MCSmearHighR9EBRho%s01sigma" % direction,
+                              "MCSmearHighR9EERho%s01sigma" % direction,
+                              "MCSmearLowR9EEPhi%s01sigma" % direction,
+                              "MCSmearLowR9EBPhi%s01sigma" % direction,
+                              "MCSmearHighR9EBPhi%s01sigma" % direction,
+                              "MCSmearHighR9EEPhi%s01sigma" % direction,
+                              "MCScaleLowR9EE%s01sigma" % direction,
+                              "MCScaleLowR9EB%s01sigma" % direction,
+                              "MCScaleHighR9EE%s01sigma" % direction,
+                              "MCScaleHighR9EB%s01sigma" % direction,
                            ]
         systlabels += phosystlabels
     else:
@@ -207,6 +219,7 @@ variablesToUse.append("weight_LooseMvaSFWeight:=weight(\"LooseMvaSFCentral\")")
 variablesToUse.append("weight_PreselSF:=weight(\"PreselSFCentral\")")
 variablesToUse.append("weight_electronVetoSF:=weight(\"electronVetoSFCentral\")")
 variablesToUse.append("weight_TriggerWeight:=weight(\"TriggerWeightCentral\")")
+variablesToUse.append("centralObjectWeight[1,-999999.,999999.] := centralWeight")
 
 if customize.processId != "Data":
     #all_variables += matching_photon# + jet_syst_weights
